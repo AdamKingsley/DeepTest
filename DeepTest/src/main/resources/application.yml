@@ -1,0 +1,45 @@
+# session默认30min 设置为600s
+server:
+  session:
+    timeout: 600
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+  location: 127.0.0.1
+
+# spring config
+spring:
+  application:
+    name: project
+#  profiles:
+#    active: dev
+#  devtools:
+#    restart:
+#      enabled: false
+  http:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 500MB
+  data:
+     mongodb:
+        host: 120.79.89.98
+        #username: caruser
+        #password: normalneoway
+        database: mnist_active_data
+        port: 27017
+        repositories: true
+#data:
+#  mongodb:
+#    service_data:
+#      host: 120.79.89.98
+#      port: 27017
+#      database: business_data
+#    mnist_data:
+#      host: 120.79.89.98
+#      port: 27017
+#      database: mnist_active_data
+
+# logging config
+logging:
+  config: classpath:logback.xml
+
