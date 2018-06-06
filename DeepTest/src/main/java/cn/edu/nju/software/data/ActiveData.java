@@ -22,6 +22,6 @@ public class ActiveData {
     private Integer label;
 
     @Field("activation_data")
-    @JSONField(name = "activation_data")
+    //@JSONField(name = "activation_data")
     private Double[][] activationData;
 }

@@ -3,7 +3,11 @@ package cn.edu.nju.software.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.util.Date;
 
 /**
  * 用户提交记录的数据
@@ -15,4 +19,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OperationData {
+    @Id
+    private Long id;
+
+    @Field("user_id")
+    private Long userId;
+
+    @Field("image_id")
+    private Long imageId;
+
+    @Field("model_id")
+    private Long modelId;
+
+    @Field("operation_time")
+    private Date operationTime;
 }

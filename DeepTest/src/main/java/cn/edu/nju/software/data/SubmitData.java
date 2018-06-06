@@ -3,32 +3,34 @@ package cn.edu.nju.software.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.mongodb.morphia.annotations.Embedded;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
- * Created by mengf on 2018/5/29 0029.
+ * Created by mengf on 2018/6/7 0007.
  */
-@Document(collection = "image_data")
+@Document(collection = "submit_data")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ImageData {
+public class SubmitData {
     @Id
     private Long id;
 
-    private String name;
+    @Field("user_id")
+    private Long userId;
 
-    @Embedded
-    private List<Tag> tags;
+    @Field("image_ids")
+    private List<Long> imageIds;
 
-    private String path;
+    @Field("kill_model_ids")
+    private List<Long> killModelId;
 
-    @Field("thumbnail_path")
-    private String thumbnailPath;
+    @Field("submit_time")
+    private Date operationTime;
+
 }

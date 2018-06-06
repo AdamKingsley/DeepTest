@@ -21,7 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ExamData {
     @Id
-    private ObjectId id;
+    private Long id;
     @Field("image_ids")
     private List<Long> imageIds;
     @Field("model_ids")

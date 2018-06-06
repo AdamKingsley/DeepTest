@@ -49,11 +49,20 @@ public class TestController {
     }
 
     @GetMapping("getSamples")
-    public Result getSamples(){
+    public Result getSamples() {
         return Result.success().withData(service.getSamples()).message("获取数据成功");
     }
 
 
-
+    @GetMapping("insertImages")
+    public Result insertImages() {
+        service.loadImageDataFromJson();
+        return Result.success().message("预准备插入图像相关数据成功！");
+    }
+    @GetMapping("insertModels")
+    public Result insertModels() {
+        service.insertModelData();
+        return Result.success().message("预准备插入变异相关数据成功！");
+    }
 
 }

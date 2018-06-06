@@ -17,11 +17,12 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 public class MutationData {
     @Id
-    private ObjectId id;
-    //变异模型的激活数据存储的collection
+    private Long id;
+    private String name;
+    //变异模型的激活数据存储的collection的名称
     @Field("data_collection")
     private String dataCollection;
-    //变异类型
+    //变异类型 目前就0 表示神经元删除
     private Integer type;
 
 }
