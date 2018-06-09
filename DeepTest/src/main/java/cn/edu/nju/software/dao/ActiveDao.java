@@ -3,6 +3,8 @@ package cn.edu.nju.software.dao;
 import cn.edu.nju.software.data.ActiveData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,4 +33,13 @@ public class ActiveDao {
     }
 
 
+    public ActiveData findDataInMutation(Long imageId, String dataCollection, Boolean output) {
+        Query query = new Query(Criteria.where("_id").is(imageId));
+        ActiveData data = mongoTemplate.findOne(query, ActiveData.class, dataCollection);
+        return data;
+    }
+
+    public ActiveData findDataInStandard(Long imageId, Boolean output) {
+        return findDataInMutation(imageId, "standard_model", output);
+    }
 }
