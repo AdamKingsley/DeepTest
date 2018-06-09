@@ -18,4 +18,6 @@ public class ActiveDto {
     private Long imageId;
     private ActiveData standard;
     private ActiveData mutation;
+    private String standardCollection = "standard_model";
+    private String mutationCollection;
 }
