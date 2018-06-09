@@ -59,10 +59,17 @@ public class TestController {
         service.loadImageDataFromJson();
         return Result.success().message("预准备插入图像相关数据成功！");
     }
+
     @GetMapping("insertModels")
     public Result insertModels() {
         service.insertModelData();
         return Result.success().message("预准备插入变异相关数据成功！");
+    }
+
+    @GetMapping("resave_active_data")
+    public Result resave() {
+        service.resave_avtive_data();
+        return Result.success().message("将int32转为64成功~");
     }
 
 }

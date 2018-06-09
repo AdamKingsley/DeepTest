@@ -2,12 +2,23 @@ package cn.edu.nju.software.service;
 
 import cn.edu.nju.software.command.ExamCommand;
 import cn.edu.nju.software.dao.ExamDao;
+import cn.edu.nju.software.dao.ImageDao;
+import cn.edu.nju.software.dao.ModelDao;
+import cn.edu.nju.software.dao.SubmitDao;
 import cn.edu.nju.software.data.ExamData;
+import cn.edu.nju.software.data.ImageData;
+import cn.edu.nju.software.data.SubmitData;
+import cn.edu.nju.software.data.mutation.MutationData;
+import cn.edu.nju.software.dto.*;
+import cn.edu.nju.software.util.UserUtil;
+import com.google.common.collect.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by mengf on 2018/6/7 0007.
@@ -16,6 +27,12 @@ import java.util.Date;
 public class ExamService {
     @Autowired
     private ExamDao examDao;
+    @Autowired
+    private ModelDao modelDao;
+    @Autowired
+    private ImageDao imageDao;
+    @Autowired
+    private SubmitDao submitDao;
 
     public void create(ExamCommand command) {
         ExamData data = new ExamData();
@@ -23,5 +40,60 @@ public class ExamService {
         data.setCreateTime(new Date());
         data.setModifyTime(data.getCreateTime());
         examDao.insert(data);
+    }
+
+    public ExamDto getExamDetail(Long id) {
+        ExamDto dto = new ExamDto();
+        dto.setModels(getExamModels(id));
+        ExamImageDto examImageDto = getExamImages(id);
+        dto.setAllImages(examImageDto.getAllImages());
+        dto.setSelectedImageIds(examImageDto.getSelectedImageIds());
+        List<Long> killIds = submitDao.getKilledModelIds(id, UserUtil.getUserId());
+        dto.setKilledModelIds(killIds);
+        dto.setTimes(submitDao.getSubmitTimes(id, UserUtil.getUserId()));
+        return dto;
+    }
+
+    public List<ModelDto> getExamModels(Long id) {
+        List<ModelDto> modelDtos = Lists.newArrayList();
+        List<Long> modelIds = examDao.getModelIds(id);
+        List<MutationData> datas = modelDao.getModelByIds(modelIds);
+        datas.forEach(data -> {
+            ModelDto dto = new ModelDto();
+            BeanUtils.copyProperties(data, dto);
+            modelDtos.add(dto);
+        });
+        return modelDtos;
+    }
+
+    public ExamImageDto getExamImages(Long id) {
+        List<ImageDto> allImageDtos = Lists.newArrayList();
+        List<ImageDto> selectImageDtos = Lists.newArrayList();
+
+        //获取考试所有的样本图片的数据，然后从image_data表中获取图片的具体信息
+        List<Long> allImageIds = examDao.getImageIds(id);
+        List<ImageData> allImages = imageDao.findByIds(allImageIds);
+        allImages.forEach(image -> {
+            ImageDto dto = new ImageDto();
+            BeanUtils.copyProperties(image, dto);
+            allImageDtos.add(dto);
+        });
+
+        List<Long> selectedImageIds = submitDao.getSubmitImageIds(id, UserUtil.getUserId());
+
+        //组装数据返回
+        ExamImageDto dto = new ExamImageDto();
+        dto.setAllImages(allImageDtos);
+        dto.setSelectedImageIds(selectedImageIds);
+        return dto;
+    }
+
+    public Long getSubmitCount(Long id) {
+        return submitDao.getSubmitTimes(id, UserUtil.getUserId());
+    }
+
+    public List<Long> getKilledIds(Long id) {
+        List<Long> killIds = submitDao.getKilledModelIds(id, UserUtil.getUserId());
+        return killIds;
     }
 }
