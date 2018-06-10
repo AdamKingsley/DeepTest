@@ -2,3 +2,4 @@
 DeepTest/.mvn/wrapper/maven-wrapper.jar
 DeepTest/.mvn/
 *.log
+DeepTest/src/main/resources/static/assets/images/mnist/

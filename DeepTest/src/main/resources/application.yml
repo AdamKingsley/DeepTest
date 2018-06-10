@@ -28,6 +28,8 @@ spring:
         database: mnist_active_data
         port: 27017
         repositories: true
+  mvc:
+    static-path-pattern: /**
 #data:
 #  mongodb:
 #    service_data:
