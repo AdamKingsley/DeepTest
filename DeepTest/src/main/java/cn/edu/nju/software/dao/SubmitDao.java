@@ -64,7 +64,7 @@ public class SubmitDao {
         //合并去重
         Set<Long> ids = Sets.newHashSet();
         for (SubmitData data : datas) {
-            if (data.getKillModelId() != null && data.getImageIds().size() > 0) {
+            if (data.getKillModelId() != null && data.getKillModelId().size() > 0) {
                 ids.addAll(data.getKillModelId());
             }
         }
