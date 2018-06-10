@@ -2,6 +2,8 @@ package cn.edu.nju.software.dao;
 
 import cn.edu.nju.software.data.ExamData;
 import cn.edu.nju.software.data.mutation.MutationData;
+import cn.edu.nju.software.util.QueryUtil;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -39,5 +41,23 @@ public class ExamDao {
 
     public void insert(ExamData examData) {
         mongoTemplate.insert(examData);
+    }
+
+    public List<Long> getImageIds(Long id) {
+        Query query = QueryUtil.queryByField("image_ids");
+        ExamData example = new ExamData();
+        example.setId(id);
+        query.addCriteria(Criteria.byExample(example));
+        ExamData data = mongoTemplate.findOne(query, ExamData.class);
+        return data.getImageIds();
+    }
+
+    public List<Long> getModelIds(Long id) {
+        Query query = QueryUtil.queryByField("model_ids");
+        ExamData example = new ExamData();
+        example.setId(id);
+        query.addCriteria(Criteria.byExample(example));
+        ExamData data = mongoTemplate.findOne(query, example.getClass());
+        return data.getModelIds();
     }
 }

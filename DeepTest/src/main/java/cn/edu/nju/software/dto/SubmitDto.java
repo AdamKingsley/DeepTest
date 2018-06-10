@@ -17,6 +17,5 @@ public class SubmitDto {
     private Integer killedNums;
     //杀死变异体的ID
     private List<Long> modelIds;
-    //第几次提交
-    private Integer times;
+
 }

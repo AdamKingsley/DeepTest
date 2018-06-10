@@ -22,6 +22,8 @@ public class SubmitData {
     @Id
     private ObjectId id;
 
+    @Field("exam_id")
+    private Long examId;
     @Field("user_id")
     private Long userId;
 

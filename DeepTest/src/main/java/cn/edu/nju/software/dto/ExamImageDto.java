@@ -1,4 +1,4 @@
-package cn.edu.nju.software.command;
+package cn.edu.nju.software.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,9 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FilterCommand {
-    private Long examId;
-    private List<Object> tags;
-    private List<ActiveCommand> activeLocations;
-    //private List<Long> imageIds;
+public class ExamImageDto {
+    private List<Long> selectedImageIds;
+    private List<ImageDto> allImages;
 }

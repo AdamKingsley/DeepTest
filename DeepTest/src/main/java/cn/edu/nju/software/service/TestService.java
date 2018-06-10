@@ -102,7 +102,7 @@ public class TestService {
             DelModelData data = new DelModelData();
             data.setId(count);
             data.setName("del_neuron_1_" + i);
-            data.setDataCollection(data.getName());
+            data.setDataCollection(data.getName()+"_model");
             data.setType(0);
             data.setDeleteNuerons(neuronDatas);
             datas.add(data);
@@ -114,7 +114,7 @@ public class TestService {
             DelModelData data = new DelModelData();
             data.setId(count);
             data.setName("del_neuron_2_" + i);
-            data.setDataCollection(data.getName());
+            data.setDataCollection(data.getName()+"_model");
             data.setType(0);
             data.setDeleteNuerons(neuronDatas);
             datas.add(data);
@@ -122,6 +122,15 @@ public class TestService {
         }
         System.out.println("共有" + datas.size() + "个变异模型！");
         template.insertAll(datas);
+    }
+
+    public void resave_avtive_data() {
+        for (int i = 0; i < 128; i++) {
+            List<ActiveData> datas = template.findAll(ActiveData.class, "del_neuron_1_" + i + "_model");
+        }
+        for (int i = 0; i < 64; i++) {
+
+        }
     }
     // 创建考试数据
 
