@@ -30,6 +30,10 @@ spring:
         repositories: true
   mvc:
     static-path-pattern: /**
+
+management:
+  security:
+    enabled : false
 #data:
 #  mongodb:
 #    service_data:
@@ -45,3 +49,7 @@ spring:
 logging:
   config: classpath:logback.xml
 
+# 第三方接口获取access_token的对应密钥
+mooctest:
+  url: http://api.mooctest.net/oauth
+  secretKey: YWl0ZXN0OjQwMGFjMGI0ZjhkYTQwZDZhOThmMjk5MjVjOWRjZWIx
