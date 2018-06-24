@@ -102,9 +102,10 @@ public class TestService {
             DelModelData data = new DelModelData();
             data.setId(count);
             data.setName("del_neuron_1_" + i);
-            data.setDataCollection(data.getName()+"_model");
+            data.setDataCollection(data.getName() + "_model");
             data.setType(0);
             data.setDeleteNuerons(neuronDatas);
+            data.setPath("del_neuron_model_1_" + i + ".hdf5");
             datas.add(data);
             count++;
         }
@@ -114,9 +115,10 @@ public class TestService {
             DelModelData data = new DelModelData();
             data.setId(count);
             data.setName("del_neuron_2_" + i);
-            data.setDataCollection(data.getName()+"_model");
+            data.setDataCollection(data.getName() + "_model");
             data.setType(0);
             data.setDeleteNuerons(neuronDatas);
+            data.setPath("del_neuron_model_2_" + i + ".hdf5");
             datas.add(data);
             count++;
         }

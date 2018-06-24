@@ -97,4 +97,9 @@ public class ImageDao {
             activeDatas.forEach(activeData -> ids.add(activeData.getId()));
         return ids;
     }
+
+    public ImageData findById(Long id) {
+        Query query = new Query(Criteria.where("_id").in(id));
+        return mongoTemplate.findOne(query, ImageData.class);
+    }
 }

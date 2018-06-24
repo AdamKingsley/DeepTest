@@ -15,7 +15,7 @@ public class OperationService {
     @Autowired
     private OperationDao operationDao;
 
-    public void saveOperation(Long imageId, Long modelId, Long userId) {
+    public void saveOperation(Long imageId, Long modelId, String userId) {
         OperationData data = new OperationData();
         data.setImageId(imageId);
         data.setModelId(modelId);

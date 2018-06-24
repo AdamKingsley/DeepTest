@@ -15,6 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 public class ExamCommand {
     private Long id;
+    private String taksId;
+    // 0 是找图片 1是图片上加噪音
+    private Integer type;
     private List<Long> imageIds;
     private List<Long> modelIds;
     private Date createTime;

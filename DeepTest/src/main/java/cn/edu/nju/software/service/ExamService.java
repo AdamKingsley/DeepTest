@@ -16,6 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,8 @@ public class ExamService {
     private ImageDao imageDao;
     @Autowired
     private SubmitDao submitDao;
+    @Autowired
+    private HttpServletRequest request;
 
     public void create(ExamCommand command) {
         ExamData data = new ExamData();

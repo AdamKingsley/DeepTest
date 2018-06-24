@@ -1,9 +1,11 @@
 package cn.edu.nju.software.service;
 
 import cn.edu.nju.software.command.FilterCommand;
+import cn.edu.nju.software.command.PaintCommand;
 import cn.edu.nju.software.command.SubmitCommand;
 import cn.edu.nju.software.dao.*;
 import cn.edu.nju.software.data.ActiveData;
+import cn.edu.nju.software.data.ImageData;
 import cn.edu.nju.software.data.SubmitData;
 import cn.edu.nju.software.data.mutation.DelModelData;
 import cn.edu.nju.software.data.mutation.MutationData;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sun.dc.pr.PRError;
 
+import javax.swing.*;
 import java.util.Date;
 import java.util.List;
 
@@ -69,10 +72,20 @@ public class DataService {
         return dto;
     }
 
+    public ActiveDto submit(PaintCommand paintCommand) {
+        ActiveDto dto = new ActiveDto();
+        List<MutationData> models = modelDao.getModelByIds(paintCommand.getModels());
+        ImageData imageData = imageDao.findById(paintCommand.getImageId());
+        //TODO
+        //调用python处理的api的 传入考试id 用户id  原图样本数据id+path 以及需要处理的变异模型的id+path 以及噪音前景图 adversial
+        return dto;
+    }
+
     public List<ImageDto> filter(FilterCommand filterCommand) {
         List<Long> imageIds = examDao.getImageIds(filterCommand.getExamId());
         List<ImageDto> imageDtos = imageDao.filter(imageIds, filterCommand.getTags(), filterCommand.getActiveLocations());
         return imageDtos;
     }
+
 }
 

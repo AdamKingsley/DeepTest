@@ -1,6 +1,7 @@
 package cn.edu.nju.software.controller;
 
 import cn.edu.nju.software.command.FilterCommand;
+import cn.edu.nju.software.command.PaintCommand;
 import cn.edu.nju.software.command.SubmitCommand;
 import cn.edu.nju.software.common.result.Result;
 import cn.edu.nju.software.dto.ActiveDto;
@@ -10,9 +11,11 @@ import cn.edu.nju.software.service.DataService;
 import cn.edu.nju.software.service.OperationService;
 import cn.edu.nju.software.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -31,6 +34,7 @@ public class ProcessController {
     //USER id 前端传过来？还是后端直接取到？
 
     /**
+     * 选择图片类型的考试的提交接口
      * 用户提交信息数据
      *
      * @param command
@@ -44,6 +48,20 @@ public class ProcessController {
         //注意，仅返回本次提交的样本杀死的变异体的数量和Ids 前端拿到数据后自己并集添加对应的杀死的id
         // 后端只是第一次获取exam的时候将当下所有变异体杀死情况+已经进行了多少次提交反馈给前端
         // 后面的提交工作只是提交一个反馈一个
+        return Result.success().message("提交数据成功").withData(dto);
+    }
+
+
+    /**
+     * 绘制图片adversial的考试类型的提交接口
+     *
+     * @param paintCommand
+     * @param request
+     * @return
+     */
+    @PostMapping("/paint/submit")
+    public Result submitPaintData(@RequestBody PaintCommand paintCommand, HttpServletRequest request) {
+        SubmitDto dto = dataService.submit(paintCommand);
         return Result.success().message("提交数据成功").withData(dto);
     }
 
@@ -77,6 +95,5 @@ public class ProcessController {
         operationService.saveOperation(imageId, modelId, UserUtil.getUserId());
         return Result.success().message("获取激活信息成功").withData(dto);
     }
-
 
 }

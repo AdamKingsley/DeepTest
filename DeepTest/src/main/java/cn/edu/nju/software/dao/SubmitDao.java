@@ -22,7 +22,7 @@ public class SubmitDao {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public Long getSubmitTimes(Long examId, Long userId) {
+    public Long getSubmitTimes(Long examId, String userId) {
         SubmitData example = new SubmitData();
         example.setExamId(examId);
         example.setUserId(userId);
@@ -30,7 +30,7 @@ public class SubmitDao {
         return mongoTemplate.count(query, SubmitData.class);
     }
 
-    public List<Long> getSubmitImageIds(Long examId, Long userId) {
+    public List<Long> getSubmitImageIds(Long examId, String userId) {
         Query query = QueryUtil.queryByField("image_ids");
         SubmitData example = new SubmitData();
         example.setExamId(examId);
@@ -54,7 +54,7 @@ public class SubmitDao {
         return ids;
     }
 
-    public List<Long> getKilledModelIds(Long examId, Long userId) {
+    public List<Long> getKilledModelIds(Long examId, String userId) {
         Query query = QueryUtil.queryByField("kill_model_ids");
         SubmitData example = new SubmitData();
         example.setExamId(examId);

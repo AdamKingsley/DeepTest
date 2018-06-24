@@ -25,7 +25,7 @@ public class SubmitData {
     @Field("exam_id")
     private Long examId;
     @Field("user_id")
-    private Long userId;
+    private String userId;
 
     @Field("image_ids")
     private List<Long> imageIds;

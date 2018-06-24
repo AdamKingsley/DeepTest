@@ -24,7 +24,7 @@ public class OperationData {
     private ObjectId id;
 
     @Field("user_id")
-    private Long userId;
+    private String userId;
 
     @Field("image_id")
     private Long imageId;

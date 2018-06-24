@@ -24,5 +24,6 @@ public class MutationData {
     private String dataCollection;
     //变异类型 目前就0 表示神经元删除
     private Integer type;
+    private String path;
 
 }
