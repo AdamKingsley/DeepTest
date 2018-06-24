@@ -2,6 +2,7 @@ package cn.edu.nju.software.controller;
 
 import cn.edu.nju.software.common.result.Result;
 import cn.edu.nju.software.data.ActiveData;
+import cn.edu.nju.software.service.MoocTestService;
 import cn.edu.nju.software.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -19,12 +20,28 @@ import java.util.List;
 
 @RestController
 @RequestMapping("test")
+//@EnableConfigurationProperties({MoocTestConfig.class})
 public class TestController {
 
     @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
     private TestService service;
+    @Autowired
+    private MoocTestService moocTestService;
+//    @Autowired
+//    private MoocTestConfig moocTestConfig;
+
+//    @GetMapping("secretKey")
+//    public String get(){
+//        return moocTestConfig.getSecretKey();
+//    }
+
+    @GetMapping("secretKey")
+    public String get(){
+        return moocTestService.accessToken();
+    }
+
 
     @GetMapping("hello")
     public Result hello() {
