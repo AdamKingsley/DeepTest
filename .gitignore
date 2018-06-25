@@ -1,5 +1,6 @@
 .idea/
 DeepTest/.mvn/wrapper/maven-wrapper.jar
 DeepTest/.mvn/
+PythonApi/venv/
 *.log
 DeepTest/src/main/resources/static/assets/images/mnist/
