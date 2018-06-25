@@ -34,6 +34,6 @@ public class SubmitData {
     private List<Long> killModelId;
 
     @Field("submit_time")
-    private Date operationTime;
+    private Date submitTime;
 
 }

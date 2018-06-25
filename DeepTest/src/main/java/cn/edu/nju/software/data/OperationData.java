@@ -14,6 +14,8 @@ import java.util.Date;
  * 用户提交记录的数据
  * 用于进行用户限制的一些操作
  * 如限时查看等功能
+ *
+ * 现在无用
  */
 @Document(collection = "operation_data")
 @Data
@@ -25,6 +27,9 @@ public class OperationData {
 
     @Field("user_id")
     private String userId;
+
+    @Field("exam_id")
+    private Long examId;
 
     @Field("image_id")
     private Long imageId;

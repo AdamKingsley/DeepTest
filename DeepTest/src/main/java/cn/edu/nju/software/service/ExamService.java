@@ -1,6 +1,7 @@
 package cn.edu.nju.software.service;
 
 import cn.edu.nju.software.command.ExamCommand;
+import cn.edu.nju.software.common.exception.ServiceException;
 import cn.edu.nju.software.dao.ExamDao;
 import cn.edu.nju.software.dao.ImageDao;
 import cn.edu.nju.software.dao.ModelDao;
@@ -12,11 +13,13 @@ import cn.edu.nju.software.data.mutation.MutationData;
 import cn.edu.nju.software.dto.*;
 import cn.edu.nju.software.util.UserUtil;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +38,8 @@ public class ExamService {
     @Autowired
     private SubmitDao submitDao;
     @Autowired
-    private HttpServletRequest request;
+    private CommonService commonService;
+
 
     public void create(ExamCommand command) {
         ExamData data = new ExamData();
@@ -51,9 +55,9 @@ public class ExamService {
         ExamImageDto examImageDto = getExamImages(id);
         dto.setAllImages(examImageDto.getAllImages());
         dto.setSelectedImageIds(examImageDto.getSelectedImageIds());
-        List<Long> killIds = submitDao.getKilledModelIds(id, UserUtil.getUserId());
+        List<Long> killIds = submitDao.getKilledModelIds(id, commonService.getUserId());
         dto.setKilledModelIds(killIds);
-        dto.setTimes(submitDao.getSubmitTimes(id, UserUtil.getUserId()));
+        dto.setTimes(submitDao.getSubmitTimes(id, commonService.getUserId()));
         return dto;
     }
 
@@ -82,7 +86,7 @@ public class ExamService {
             allImageDtos.add(dto);
         });
 
-        List<Long> selectedImageIds = submitDao.getSubmitImageIds(id, UserUtil.getUserId());
+        List<Long> selectedImageIds = submitDao.getSubmitImageIds(id, commonService.getUserId());
 
         //组装数据返回
         ExamImageDto dto = new ExamImageDto();
@@ -92,11 +96,11 @@ public class ExamService {
     }
 
     public Long getSubmitCount(Long id) {
-        return submitDao.getSubmitTimes(id, UserUtil.getUserId());
+        return submitDao.getSubmitTimes(id, commonService.getUserId());
     }
 
     public List<Long> getKilledIds(Long id) {
-        List<Long> killIds = submitDao.getKilledModelIds(id, UserUtil.getUserId());
+        List<Long> killIds = submitDao.getKilledModelIds(id, commonService.getUserId());
         return killIds;
     }
 }

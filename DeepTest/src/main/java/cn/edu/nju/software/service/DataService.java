@@ -11,6 +11,7 @@ import cn.edu.nju.software.data.mutation.DelModelData;
 import cn.edu.nju.software.data.mutation.MutationData;
 import cn.edu.nju.software.dto.ActiveDto;
 import cn.edu.nju.software.dto.ImageDto;
+import cn.edu.nju.software.dto.PaintSubmitDto;
 import cn.edu.nju.software.dto.SubmitDto;
 import com.google.common.collect.Lists;
 import org.springframework.beans.BeanUtils;
@@ -66,19 +67,19 @@ public class DataService {
         SubmitData submitData = new SubmitData();
         BeanUtils.copyProperties(command, submitData);
         submitData.setKillModelId(killedIds);
-        submitData.setOperationTime(new Date());
+        submitData.setSubmitTime(new Date());
         submitDao.insert(submitData);
 
         return dto;
     }
 
-    public ActiveDto submit(PaintCommand paintCommand) {
+    public List<PaintSubmitDto> submit(PaintCommand paintCommand) {
         ActiveDto dto = new ActiveDto();
         List<MutationData> models = modelDao.getModelByIds(paintCommand.getModels());
         ImageData imageData = imageDao.findById(paintCommand.getImageId());
-        //TODO
+        //TODO !!!!!!
         //调用python处理的api的 传入考试id 用户id  原图样本数据id+path 以及需要处理的变异模型的id+path 以及噪音前景图 adversial
-        return dto;
+        return Lists.newArrayList();
     }
 
     public List<ImageDto> filter(FilterCommand filterCommand) {

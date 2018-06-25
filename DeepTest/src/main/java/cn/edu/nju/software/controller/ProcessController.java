@@ -6,6 +6,7 @@ import cn.edu.nju.software.command.SubmitCommand;
 import cn.edu.nju.software.common.result.Result;
 import cn.edu.nju.software.dto.ActiveDto;
 import cn.edu.nju.software.dto.ImageDto;
+import cn.edu.nju.software.dto.PaintSubmitDto;
 import cn.edu.nju.software.dto.SubmitDto;
 import cn.edu.nju.software.service.DataService;
 import cn.edu.nju.software.service.OperationService;
@@ -61,8 +62,8 @@ public class ProcessController {
      */
     @PostMapping("/paint/submit")
     public Result submitPaintData(@RequestBody PaintCommand paintCommand, HttpServletRequest request) {
-        SubmitDto dto = dataService.submit(paintCommand);
-        return Result.success().message("提交数据成功").withData(dto);
+        List<PaintSubmitDto> dtos = dataService.submit(paintCommand);
+        return Result.success().message("提交数据成功").withData(dtos);
     }
 
     /**
