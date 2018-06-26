@@ -45,11 +45,14 @@ public class MoocTestService {
         UserDto dto = (UserDto) session.getAttribute("user");
         if (dto == null) {
             String auth_code = (String) session.getAttribute("authrization_code");
+            if (auth_code == null || auth_code.trim().isEmpty()) {
+                throw new ServiceException("用户信息丢失，请重新从慕测平台进入该考试！");
+            }
             SessionTicket ticket = moocTestFeign.getSessionTicket(accessToken(), auth_code);
             session.setAttribute("session_ticket", ticket.getSessionTicket());
             dto = moocTestFeign.getUser(accessToken(), ticket.getSessionTicket());
             session.setAttribute("user", dto);
-            session.setAttribute("userId", dto.getOpenId());
+            session.setAttribute("user_id", dto.getOpenId());
         }
         return dto;
     }

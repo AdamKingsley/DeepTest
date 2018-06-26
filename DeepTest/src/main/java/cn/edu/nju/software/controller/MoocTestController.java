@@ -1,7 +1,9 @@
 package cn.edu.nju.software.controller;
 
 import cn.edu.nju.software.common.result.Result;
+import cn.edu.nju.software.dto.ExamDto;
 import cn.edu.nju.software.dto.UserDto;
+import cn.edu.nju.software.service.ExamService;
 import cn.edu.nju.software.service.MoocTestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,18 +19,17 @@ public class MoocTestController {
 
     @Autowired
     private MoocTestService moocTestService;
+    @Autowired
+    private ExamService examService;
 
-    @GetMapping("/enter/exam")
-    public void redirectToExam(@RequestParam("task_id") String taskId, @RequestParam(value = "case_id", required = false) String caseId,
-                               @RequestParam("code") String code, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        //TODO  同前端商议url
-        // 实现跳转到第三方的链接
-        // 主要是获取到taskId 根据数据库获取到exam的信息 (mongodb)
-        // 获取到authrization_code 可以通过这个数据获取session_ticket
-        // 从而获取到用户的数据
+    @GetMapping("/exam")
+    public Result redirectToExam(@RequestParam("task_id") String taskId, @RequestParam(value = "case_id", required = false) String caseId,
+                                 @RequestParam("code") String code, HttpServletRequest request, HttpServletResponse response) {
+        //前端接收url请求后，将task_id和code [一般没有case id]发送给后端查询考试id
         HttpSession session = request.getSession();
         session.setAttribute("authrization_code", code);
-        response.sendRedirect("做题的url");
+        ExamDto examDto = examService.findByTaskId(taskId);
+        return Result.success().message("根据mooctest task id 获取考试id成功!").withData(examDto);
     }
 
     @GetMapping("/user")

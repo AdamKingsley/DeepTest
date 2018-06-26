@@ -103,4 +103,12 @@ public class ExamService {
         List<Long> killIds = submitDao.getKilledModelIds(id, commonService.getUserId());
         return killIds;
     }
+
+    public ExamDto findByTaskId(String taskId) {
+        ExamData examData = examDao.getExamIdByTaskId(taskId);
+        ExamDto dto = new ExamDto();
+        dto.setId(examData.getId());
+        dto.setType(examData.getType());
+        return dto;
+    }
 }

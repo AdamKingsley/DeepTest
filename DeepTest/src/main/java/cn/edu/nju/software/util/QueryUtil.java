@@ -27,4 +27,14 @@ public class QueryUtil {
         Query query = new BasicQuery(new BasicDBObject(), fileds);
         return query;
     }
+
+
+    public static Query queryExceptField(String... fieldNames) {
+        BasicDBObject fileds = new BasicDBObject();
+        for (String field : fieldNames) {
+            fileds.put(field, false);
+        }
+        Query query = new BasicQuery(new BasicDBObject(), fileds);
+        return query;
+    }
 }

@@ -31,6 +31,8 @@ public class ExamData {
     private List<Long> imageIds;
     @Field("model_ids")
     private List<Long> modelIds;
+    private Date startTime;
+    private Date endTime;
     private Date createTime;
     private Date modifyTime;
 }
