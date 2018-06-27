@@ -13,7 +13,7 @@ public class CommonService {
 
     public String getUserId() {
         HttpSession session = request.getSession();
-        String userId = (String) session.getAttribute("userId");
+        String userId = (String) session.getAttribute("user_id");
         if (userId == null || "".equals(userId.trim())) {
             //TODO 正式环境这里需要抛出异常
             return "123";

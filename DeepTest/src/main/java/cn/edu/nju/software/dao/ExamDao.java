@@ -60,4 +60,24 @@ public class ExamDao {
         ExamData data = mongoTemplate.findOne(query, example.getClass());
         return data.getModelIds();
     }
+
+    public ExamData getExamIdByTaskId(String taskId) {
+        Query query = QueryUtil.queryByField("_id", "type");
+        query.addCriteria(Criteria.where("task_id").is(taskId));
+        ExamData examData = mongoTemplate.findOne(query, ExamData.class);
+        return examData;
+    }
+
+    public ExamData getSimpleExamData(Long id) {
+        Query query = QueryUtil.queryExceptField("image_ids", "model_ids");
+        query.addCriteria(Criteria.where("_id").is(id));
+        ExamData data = mongoTemplate.findOne(query, ExamData.class);
+        return data;
+    }
+
+    public ExamData getExamData(Long id) {
+        Query query = new Query(Criteria.where("_id").is(id));
+        ExamData data = mongoTemplate.findOne(query, ExamData.class);
+        return data;
+    }
 }

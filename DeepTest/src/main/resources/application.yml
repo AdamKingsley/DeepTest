@@ -51,5 +51,5 @@ logging:
 
 # 第三方接口获取access_token的对应密钥
 mooctest:
-  url: http://api.mooctest.net/oauth
+  url: http://api.mooctest.net/
   secretKey: YWl0ZXN0OjQwMGFjMGI0ZjhkYTQwZDZhOThmMjk5MjVjOWRjZWIx

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -13,10 +14,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExamDto {
+    private Long id;
     private List<ModelDto> models;
     private List<Long> selectedImageIds;
     private List<ImageDto> allImages;
     private List<Long> killedModelIds;
+    private Date createTime;
+    private Date modifyTime;
+    private Date startTime;
+    private Date endTime;
+    private Integer type;
     //提交的次数
     private Long times;
 }

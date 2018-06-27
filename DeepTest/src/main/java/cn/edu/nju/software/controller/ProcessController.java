@@ -8,15 +8,13 @@ import cn.edu.nju.software.dto.ActiveDto;
 import cn.edu.nju.software.dto.ImageDto;
 import cn.edu.nju.software.dto.PaintSubmitDto;
 import cn.edu.nju.software.dto.SubmitDto;
+import cn.edu.nju.software.service.CommonService;
 import cn.edu.nju.software.service.DataService;
 import cn.edu.nju.software.service.OperationService;
-import cn.edu.nju.software.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -28,6 +26,8 @@ public class ProcessController {
     @Autowired
     private DataService dataService;
 
+    @Autowired
+    private CommonService commonService;
     @Autowired
     private OperationService operationService;
 
@@ -45,6 +45,9 @@ public class ProcessController {
     @PostMapping("submit")
     public Result submit(@RequestBody SubmitCommand command, HttpServletRequest request) {
         //提交需要反馈用户这是第几次提交，提交次数可能会作为最后评价的一个标准
+        if (command.getUserId() == null) {
+            command.setUserId(commonService.getUserId());
+        }
         SubmitDto dto = dataService.submit(command);
         //注意，仅返回本次提交的样本杀死的变异体的数量和Ids 前端拿到数据后自己并集添加对应的杀死的id
         // 后端只是第一次获取exam的时候将当下所有变异体杀死情况+已经进行了多少次提交反馈给前端
@@ -62,6 +65,9 @@ public class ProcessController {
      */
     @PostMapping("/paint/submit")
     public Result submitPaintData(@RequestBody PaintCommand paintCommand, HttpServletRequest request) {
+        if (paintCommand.getUserId() == null) {
+            paintCommand.setUserId(commonService.getUserId());
+        }
         List<PaintSubmitDto> dtos = dataService.submit(paintCommand);
         return Result.success().message("提交数据成功").withData(dtos);
     }
@@ -93,7 +99,7 @@ public class ProcessController {
         output = output == null ? false : output;
         ActiveDto dto = dataService.getActivaData(imageId, modelId, output);
         //存储操作记录
-        operationService.saveOperation(imageId, modelId, UserUtil.getUserId());
+        operationService.saveOperation(imageId, modelId, commonService.getUserId());
         return Result.success().message("获取激活信息成功").withData(dto);
     }
 
