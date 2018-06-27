@@ -1,14 +1,15 @@
+import json
+import time
 import uuid
 from threading import Thread
 
 import redis
-import time
 from flask import Flask, jsonify, request, abort
 
-from config.encoder import JSONEncoder
-from config import config
-import json
+import data_augmentation
 import redis_keras_process
+from config import config
+from config.encoder import JSONEncoder
 
 app = Flask(__name__)
 app.json_encoder = JSONEncoder
@@ -42,6 +43,26 @@ def custom_sample():
     # results = process(JSON)
     print(results)
     return jsonify(results), 200
+
+
+@app.route('/custom/thin', methods=['POST'])
+def custom_thin():
+    if not request.json:
+        abort(400)
+    JSON = request.json
+    return jsonify({
+        'image': data_augmentation.thin(JSON['image'])
+    }), 200
+
+
+@app.route('/custom/fat', methods=['POST'])
+def custom_thin():
+    if not request.json:
+        abort(400)
+    JSON = request.json
+    return jsonify({
+        'image': data_augmentation.fat(JSON['image'])
+    }), 200
 
 
 if __name__ == '__main__':
