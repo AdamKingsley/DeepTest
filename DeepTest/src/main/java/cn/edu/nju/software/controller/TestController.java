@@ -5,6 +5,7 @@ import cn.edu.nju.software.command.python.ModelCommand;
 import cn.edu.nju.software.command.python.PaintSubmitCommand;
 import cn.edu.nju.software.common.result.Result;
 import cn.edu.nju.software.data.ActiveData;
+import cn.edu.nju.software.data.PaintSubmitData;
 import cn.edu.nju.software.dto.PaintSubmitDto;
 import cn.edu.nju.software.service.MoocTestService;
 import cn.edu.nju.software.service.TestService;
@@ -62,7 +63,7 @@ public class TestController {
         command.setStandardModelPath("standard_model.hdf5");
         command.setImage(imageCommand);
         command.setMutaionModels(modelCommands);
-        List<PaintSubmitDto> dtos = pythonFeign.paintSubmit(command);
+        List<PaintSubmitData> dtos = pythonFeign.paintSubmit(command);
         return Result.success().message("调用成功!").withData(dtos);
     }
 
@@ -79,7 +80,7 @@ public class TestController {
 
     @GetMapping("world")
     public Result another() {
-        return Result.success().message("another hello world!");
+        return Result.success().message("hello another hello world!");
     }
 
     @GetMapping("what")

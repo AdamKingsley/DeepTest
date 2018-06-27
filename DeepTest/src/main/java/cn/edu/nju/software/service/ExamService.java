@@ -1,28 +1,21 @@
 package cn.edu.nju.software.service;
 
 import cn.edu.nju.software.command.ExamCommand;
-import cn.edu.nju.software.common.exception.ServiceException;
-import cn.edu.nju.software.dao.ExamDao;
-import cn.edu.nju.software.dao.ImageDao;
-import cn.edu.nju.software.dao.ModelDao;
-import cn.edu.nju.software.dao.SubmitDao;
+import cn.edu.nju.software.dao.*;
 import cn.edu.nju.software.data.ExamData;
 import cn.edu.nju.software.data.ImageData;
-import cn.edu.nju.software.data.SubmitData;
 import cn.edu.nju.software.data.mutation.MutationData;
-import cn.edu.nju.software.dto.*;
-import cn.edu.nju.software.util.UserUtil;
+import cn.edu.nju.software.dto.ExamDto;
+import cn.edu.nju.software.dto.ExamImageDto;
+import cn.edu.nju.software.dto.ImageDto;
+import cn.edu.nju.software.dto.ModelDto;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by mengf on 2018/6/7 0007.
@@ -37,6 +30,12 @@ public class ExamService {
     private ImageDao imageDao;
     @Autowired
     private SubmitDao submitDao;
+    @Autowired
+    private SubmitCountDao submitCountDao;
+
+    @Autowired
+    private ExamScoreDao examScoreDao;
+
     @Autowired
     private CommonService commonService;
 
@@ -96,12 +95,18 @@ public class ExamService {
     }
 
     public Long getSubmitCount(Long id) {
-        return submitDao.getSubmitTimes(id, commonService.getUserId());
+        //之前是通过count进行的统计
+        //return submitDao.getSubmitTimes(id, commonService.getUserId());
+        //如今将count放在了examCount表中
+        return submitCountDao.getCount(id, commonService.getUserId());
     }
 
     public List<Long> getKilledIds(Long id) {
-        List<Long> killIds = submitDao.getKilledModelIds(id, commonService.getUserId());
-        return killIds;
+        //直接是通过submit_data表进行的统计
+        //List<Long> killIds = submitDao.getKilledModelIds(id, commonService.getUserId());
+        //return killIds;
+        //如今将数据放在了exam_score表中
+        return examScoreDao.getKilledModelIds(id, commonService.getUserId());
     }
 
     public ExamDto findByTaskId(String taskId) {
