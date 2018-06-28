@@ -1,0 +1,152 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 left-panel">
+      <div class="left-panel-content card">
+        <div class="card-body">
+          <h4 class="card-title">
+            未提交样本({{ unuploadedSamples.length }})
+            <span class="pull-right">
+              <button type="button"
+                      pButton
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="filterPanel.toggle($event)">
+                筛选
+              </button>&nbsp;
+              <button type="button" class="btn btn-sm btn-primary"
+                      (click)="submitSamples()">
+                提交
+              </button>
+            </span>
+          </h4>
+          <div class="card-content">
+            <span class="badge badge-success" *ngIf="commonNeuronFilter.value">
+              共同激活神经元
+              <i class="fa fa-close" (click)="deleteCommonNeuronFilter()"></i>
+            </span>&nbsp;
+            <span class="badge badge-success" *ngIf="numFilter.value">
+              数字{{ numFilter.value }}
+              <i class="fa fa-close" (click)="deleteNumFilter()"></i>
+            </span>
+          </div>
+          <div class="samples-wrapper">
+            <div class="sample-wrapper"
+                 *ngFor="let sample of unuploadedSamples"
+                 [class.selected]="checkSelected(sample)"
+                 [class.dbSelected]="dbSelectedUnuploadedSample == sample"
+                 (click)="selectSample(sample)"
+                 (dblclick)="getUnuploadedSampleModelInfo(sample)">
+              <img src="{{ sample.path }}" title="图片id: {{ sample.id }}"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-9 right-panel">
+      <div class="right-panel-content card">
+        <div class="row" style="margin-left: 0; margin-right: 0">
+          <div class="col-sm-4">
+            <div class="card-body">
+              <h4 class="card-title">
+                神经元激活
+                <p-toggleButton [(ngModel)]="enableUnuploadedMixView"
+                                offLabel="启用混合模式"
+                                onLabel="取消混合模式"
+                                [style]="{ 'font-size': '12px' }"></p-toggleButton>
+              </h4>
+              <p-dropdown [options]="models"
+                          optionLabel="name"
+                          placeholder="选择查看的模型"
+                          [(ngModel)]="unuploadedSampleSelectedModel"
+                          (onChange)="chooseUnuploadedSampleSelectedModel($event)"></p-dropdown>
+              <div class="large-img">
+                <img *ngIf="dbSelectedUnuploadedSample" [src]="dbSelectedUnuploadedSample.path"/>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-8">
+            <app-neurons [isUploaded]="false"
+                         [threshold]="threshold"
+                         [standardData]="unuploadedSampleStandardData"
+                         [mutationData]="unuploadedSampleMutationData"
+                         [allActive]="unuploadedSampleAllActive"
+                         [enableMixView]="enableUnuploadedMixView"></app-neurons>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-3 left-panel">
+      <div class="left-panel-content card">
+        <div class="card-body">
+          <h4 class="card-title">已提交样本({{ uploadedSamples.length }}) <small class="pull-right">杀死变异数：{{ killedNum }}/{{ models.length }}</small></h4>
+          <div class="samples-wrapper">
+            <div class="sample-wrapper"
+                 *ngFor="let sample of uploadedSamples"
+                 [class.dbSelected]="dbSelectedUploadedSample == sample"
+                 (dblclick)="getUploadedSampleModelInfo(sample)">
+              <img src="{{ sample.path }}"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-9 right-panel">
+      <div class="right-panel-content card">
+        <div class="row" style="margin-left: 0; margin-right: 0">
+          <div class="col-sm-4">
+            <div class="card-body">
+              <h4 class="card-title">
+                神经元激活
+                <p-toggleButton [(ngModel)]="enableUploadedMixView"
+                                offLabel="启用混合模式"
+                                onLabel="取消混合模式"
+                                [style]="{ 'font-size': '12px' }"></p-toggleButton>
+              </h4>
+              <p-dropdown [options]="models"
+                          optionLabel="name"
+                          placeholder="选择查看的模型"
+                          [(ngModel)]="uploadedSampleSelectedModel"
+                          (onChange)="chooseUploadedSampleSelectedModel($event)"></p-dropdown>
+              <div class="large-img">
+                <img *ngIf="dbSelectedUploadedSample" [src]="dbSelectedUploadedSample.path"/>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-8">
+            <app-neurons [isUploaded]="true"
+                         [threshold]="threshold"
+                         [standardData]="uploadedSampleStandardData"
+                         [mutationData]="uploadedSampleMutationData"
+                         [allActive]="uploadedSampleAllActive"
+                         [enableMixView]="enableUploadedMixView"></app-neurons>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <input id="neuron-selected" type="hidden"
+         #neuronSelected
+         (change)="getNeuronRelation(neuronSelected.value)">
+  <input id="neuron-isUploaded" type="hidden"
+         #neuronIsUploaded>
+  <div id="neuron-details">
+  </div>
+  <p-overlayPanel #filterPanel>
+    <div class="form-group">
+      <label class="col-form-label">按数字筛选: </label>&nbsp;
+      <p-dropdown class="form-control" style="border: none; padding: 0"
+                  [options]="numModels"
+                  placeholder="选择一个数字"
+                  [showClear]="true"
+                  [style]="{ 'min-width': '50px', 'width': '100%' }"
+                  [(ngModel)]="numFilter.value"
+                  (onChange)="chooseNumFilter($event)"></p-dropdown>
+    </div>
+    <div class="form-group">
+      <label class="col-form-label">神经元激活阈值: </label>
+      <input class="form-control" [(ngModel)]="threshold">
+    </div>
+  </p-overlayPanel>
+  <p-growl [(value)]="msgs"></p-growl>
+</div>

@@ -1,0 +1,103 @@
+.container-fluid {
+  height: 92vh;
+  background-color: lightgray;
+}
+
+.left-panel {
+  padding: 0 3px 0 0;
+  height: 46vh;
+  max-height: 46vh;
+  box-sizing: border-box;
+}
+
+.left-panel-content {
+  background-color: white;
+  height: 46vh;
+  max-height: 46vh;
+}
+
+.right-panel {
+  padding: 0 0 0 3px;
+  height: 46vh;
+  max-height: 46vh;
+  box-sizing: border-box;
+}
+
+.right-panel-content {
+  background-color: white;
+  height: 46vh;
+  max-height: 46vh;
+}
+
+.card-title {
+  font-size: 18px;
+}
+
+.samples-wrapper {
+  max-height: 34vh;
+  overflow-y: auto;
+}
+
+.sample-wrapper {
+  padding: 8px 8px;
+  display: inline-block;
+  cursor: pointer;
+
+  transition: background-color 0.5s;
+  -moz-transition: background-color 0.5s; /* Firefox 4 */
+  -webkit-transition: background-color 0.5s; /* Safari 和 Chrome */
+  -o-transition: background-color 0.5s; /* Opera */
+}
+
+.sample-wrapper.selected {
+  background-color: #007bff;
+}
+
+.sample-wrapper.dbSelected {
+  border: 1px solid #007bff;
+}
+
+.sample-wrapper:hover {
+  background: rgb(64, 75, 84);
+  transition: background-color 0.5s;
+  -moz-transition: background-color 0.5s; /* Firefox 4 */
+  -webkit-transition: background-color 0.5s; /* Safari 和 Chrome */
+  -o-transition: background-color 0.5s; /* Opera */
+}
+
+.sample-wrapper img {
+  width: 80px;
+}
+
+.large-img {
+  margin-top: 10px;
+}
+
+.large-img img {
+  width: 100%;
+  max-width: 220px;
+}
+
+#neuron-details {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: none;
+  top: 100px;
+  left: 100px;
+  padding: 10px;
+  z-index: 100;
+  font-size: 12px;
+}
+
+.fa-close {
+  cursor: pointer;
+}
+
+.card {
+  border-radius: 0;
+}
+
+.form-control {
+  padding: .25em;
+}
