@@ -20,6 +20,7 @@ public class PaintSubmitDto {
     private String userId;
     private Long imageId;
     private Long modelId;
+    //compose-original = adversial
     private String adversialPath;
     private String composePath;
     private Double[][] standardActivationData;

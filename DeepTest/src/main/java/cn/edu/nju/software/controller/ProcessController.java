@@ -3,16 +3,16 @@ package cn.edu.nju.software.controller;
 import cn.edu.nju.software.command.FilterCommand;
 import cn.edu.nju.software.command.PaintCommand;
 import cn.edu.nju.software.command.SubmitCommand;
+import cn.edu.nju.software.command.python.ImageDataCommand;
 import cn.edu.nju.software.common.result.Result;
-import cn.edu.nju.software.dto.ActiveDto;
-import cn.edu.nju.software.dto.ImageDto;
-import cn.edu.nju.software.dto.PaintSubmitDto;
-import cn.edu.nju.software.dto.SubmitDto;
+import cn.edu.nju.software.data.ImageData;
+import cn.edu.nju.software.dto.*;
 import cn.edu.nju.software.service.CommonService;
 import cn.edu.nju.software.service.DataService;
 import cn.edu.nju.software.service.OperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.annotation.RequestScope;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -70,6 +70,30 @@ public class ProcessController {
         }
         List<PaintSubmitDto> dtos = dataService.submit(paintCommand);
         return Result.success().message("提交数据成功").withData(dtos);
+    }
+
+    /**
+     * 图片变瘦
+     *
+     * @param command
+     * @return
+     */
+    @PostMapping("/image/thin")
+    public Result pocessThin(@RequestBody ImageDataCommand command) {
+        ImageDataDto dto = dataService.processThin(command);
+        return Result.success().message("处理图像变瘦成功!").withData(dto);
+    }
+
+    /**
+     * 图片变胖
+     *
+     * @param command
+     * @return
+     */
+    @PostMapping("/image/fat")
+    public Result processFat(@RequestBody ImageDataCommand command) {
+        ImageDataDto dto = dataService.processFat(command);
+        return Result.success().message("处理图像变胖成功!").withData(dto);
     }
 
     /**

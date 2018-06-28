@@ -4,6 +4,7 @@ import cn.edu.nju.software.command.FilterCommand;
 import cn.edu.nju.software.command.PaintCommand;
 import cn.edu.nju.software.command.SubmitCommand;
 import cn.edu.nju.software.command.python.ImageCommand;
+import cn.edu.nju.software.command.python.ImageDataCommand;
 import cn.edu.nju.software.command.python.ModelCommand;
 import cn.edu.nju.software.command.python.PaintSubmitCommand;
 import cn.edu.nju.software.common.exception.ServiceException;
@@ -11,15 +12,11 @@ import cn.edu.nju.software.dao.*;
 import cn.edu.nju.software.data.*;
 import cn.edu.nju.software.data.mutation.DelModelData;
 import cn.edu.nju.software.data.mutation.MutationData;
-import cn.edu.nju.software.dto.ActiveDto;
-import cn.edu.nju.software.dto.ImageDto;
-import cn.edu.nju.software.dto.PaintSubmitDto;
-import cn.edu.nju.software.dto.SubmitDto;
+import cn.edu.nju.software.dto.*;
 import cn.edu.nju.software.service.feign.PythonFeign;
 import cn.edu.nju.software.service.score.ScoreStrategyContext;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.sun.xml.internal.ws.api.model.MEP;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -242,7 +239,7 @@ public class DataService {
         BeanUtils.copyProperties(imageData, imageCommand);
 
         PaintSubmitCommand command = new PaintSubmitCommand();
-        command.setAdversialStr(paintCommand.getAdversial());
+        command.setComposeImageStr(paintCommand.getComposeImageStr());
         command.setUserId(paintCommand.getUserId() == null ? commonService.getUserId() : paintCommand.getUserId());
         command.setExamId(paintCommand.getExamId());
         command.setMutaionModels(model_commands);
@@ -253,5 +250,12 @@ public class DataService {
         return pythonFeign.paintSubmit(command);
     }
 
+    public ImageDataDto processThin(ImageDataCommand command) {
+        return pythonFeign.processThin(command);
+    }
+
+    public ImageDataDto processFat(ImageDataCommand command) {
+        return pythonFeign.processFat(command);
+    }
 }
 

@@ -2,7 +2,6 @@ package cn.edu.nju.software.service;
 
 import cn.edu.nju.software.dao.OperationDao;
 import cn.edu.nju.software.data.OperationData;
-import cn.edu.nju.software.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

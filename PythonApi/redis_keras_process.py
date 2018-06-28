@@ -28,13 +28,14 @@ def getActivationLayers(model):
 
 
 # 获取原始图 噪音图 混合后的图片数据
-def getMutaionImage(original, adversial):
+def getMutaionImage(original, compose):
     original_data = np.array(original) / float(255)
-    adversial_data = np.array(adversial) / float(255)
+    compose_data = np.array(compose) / float(255)
     # 167/784的位置的数据有变化
     # print(len(adversial_data[np.where(adversial_data > 0)]))
-    compose_data = original_data.copy()
-    compose_data[np.where(adversial_data != 0)] = adversial_data[np.where(adversial_data != 0)]
+    adversial_data = compose_data - original_data;
+    # compose_data = original_data.copy()
+    # compose_data[np.where(adversial_data != 0)] = adversial_data[np.where(adversial_data != 0)]
     return original_data, adversial_data, compose_data
 
 
@@ -79,7 +80,7 @@ def process():
             q = json.loads(q.decode('utf-8'))
 
             imageId = q['id']
-            adversial_str = q['adversial_str']
+            compose_image_str = q['compose_image_str']
             exam_id = q['exam_id']
             image_id = q['image']['id']
             image_path = q['image']['path']
@@ -93,17 +94,17 @@ def process():
             # ---------- 获取原图 | 噪音图/前景图 | 合成图的数据 生成及保存 start -------------
             # 获取干扰值的数据/前景图
             # 获取干扰值的数据/前景图
-            if ',' in adversial_str:
+            if ',' in compose_image_str:
                 # 获取纯的base64数据，不包含前缀
-                adversial_str = adversial_str.split(',')[1]
-            adversial = base64.b64decode(adversial_str)
-            image_data = BytesIO(adversial)
-            adversial_image = Image.open(image_data).convert('L').resize((28, 28))
+                compose_image_str = compose_image_str.split(',')[1]
+            compose = base64.b64decode(compose_image_str)
+            image_data = BytesIO(compose)
+            compose_image = Image.open(image_data).convert('L').resize((28, 28))
             # 获取扰动的原始图片数据
             original_path = os.path.join(OSPath(image_base_path), OSPath(image_path))
             original_image = Image.open(original_path).convert('L')
             # 获取原始图片 前景图  合成图 的最终数据
-            original_data, adversial_data, compose_data = getMutaionImage(original_image, adversial_image)
+            original_data, adversial_data, compose_data = getMutaionImage(original_image, compose_image)
             time_str = str(int(time.time()))
             # 图片的保存位置 以及保存
             adversial_path = '_'.join((str(user_id), str(exam_id), 'adversial', time_str)) + '.png'

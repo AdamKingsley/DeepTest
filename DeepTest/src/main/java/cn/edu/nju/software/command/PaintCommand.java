@@ -12,8 +12,9 @@ import java.util.List;
 public class PaintCommand {
     private Long examId;
     private List<Long> models;
+    //在哪个图像的基础上修改的
     private Long imageId;
     private String userId;
-    //base64 的前景图数据
-    private String adversial;
+    //扰动后的图片整体的base64编码
+    private String composeImageStr;
 }
