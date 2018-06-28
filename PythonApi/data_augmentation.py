@@ -40,6 +40,6 @@ def fat(image_b64):
     image = base64.b64decode(image_b64)
     nparr = np.fromstring(image, np.uint8)
     image_data = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
-    result = fat(cv2.resize(image_data, (28, 28), interpolation=cv2.INTER_CUBIC))
+    result = get_fat(cv2.resize(image_data, (28, 28), interpolation=cv2.INTER_CUBIC))
     result_data = cv2.imencode('.png', result)[1]
     return str(base64.b64encode(result_data), 'utf-8')
