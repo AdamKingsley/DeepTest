@@ -3,12 +3,10 @@ package cn.edu.nju.software.service;
 import cn.edu.nju.software.command.ExamCommand;
 import cn.edu.nju.software.dao.*;
 import cn.edu.nju.software.data.ExamData;
+import cn.edu.nju.software.data.ExamScoreData;
 import cn.edu.nju.software.data.ImageData;
 import cn.edu.nju.software.data.mutation.MutationData;
-import cn.edu.nju.software.dto.ExamDto;
-import cn.edu.nju.software.dto.ExamImageDto;
-import cn.edu.nju.software.dto.ImageDto;
-import cn.edu.nju.software.dto.ModelDto;
+import cn.edu.nju.software.dto.*;
 import com.google.common.collect.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,6 +112,13 @@ public class ExamService {
         ExamDto dto = new ExamDto();
         dto.setId(examData.getId());
         dto.setType(examData.getType());
+        return dto;
+    }
+
+    public ExamScoreDto getScore(Long examId, String userId) {
+        ExamScoreData scoreData = examScoreDao.getExamScore(examId, userId);
+        ExamScoreDto dto = new ExamScoreDto();
+        BeanUtils.copyProperties(scoreData, dto);
         return dto;
     }
 }

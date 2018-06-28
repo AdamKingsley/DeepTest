@@ -4,11 +4,11 @@ import cn.edu.nju.software.command.ExamCommand;
 import cn.edu.nju.software.common.result.PageResult;
 import cn.edu.nju.software.common.result.Result;
 import cn.edu.nju.software.dao.ExamDao;
-import cn.edu.nju.software.dto.ExamDto;
-import cn.edu.nju.software.dto.ExamImageDto;
-import cn.edu.nju.software.dto.ImageDto;
-import cn.edu.nju.software.dto.ModelDto;
+import cn.edu.nju.software.dao.ExamScoreDao;
+import cn.edu.nju.software.dto.*;
+import cn.edu.nju.software.service.CommonService;
 import cn.edu.nju.software.service.ExamService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +24,8 @@ public class ExamController {
 
     @Autowired
     private ExamService examService;
+    @Autowired
+    private CommonService commonService;
 
     //TODO URL 风格需选定 目前是我自己理解的RESTFUL风格，如有不对欢迎指正，我立马修改
     //@PostMapping("create")
@@ -101,30 +103,45 @@ public class ExamController {
         return Result.success().message("获取考试杀死变异体id集合成功！");
     }
 
-    /**
-     * //TODO
-     * 根据筛选条件进行筛选考试
-     * 分页显示
-     * 目前没有需求，可之后再添加
-     *
-     * @param request
-     * @return
-     */
-    @GetMapping
-    public PageResult queryBySample(HttpServletRequest request) {
-        return PageResult.error("该接口还没实现好，请通知程序猿同志继续努力~");
-    }
 
     /**
-     * //TODO 待实现 目前还没有提供考试创建的界面
-     * 修改考试信息
+     * 获取考试成绩
      *
-     * @param command
-     * @param request
+     * @param examId
+     * @param userId
      * @return
      */
-    @PutMapping
-    public Result modifyExam(@RequestBody ExamCommand command, HttpServletRequest request) {
-        return Result.success().message("程序猿小哥哥要加油哦~");
+    @GetMapping("/score")
+    public Result getScore(@RequestParam("examId") Long examId, @RequestParam(value = "userId", required = false) String userId) {
+        userId = StringUtils.isEmpty(userId) ? commonService.getUserId() : userId;
+        ExamScoreDto examScoreDto = examService.getScore(examId, userId);
+        return Result.success().message("获取考试成绩成功!").withData(examScoreDto);
     }
+
+//    /**
+//     * //TODO
+//     * 根据筛选条件进行筛选考试
+//     * 分页显示
+//     * 目前没有需求，可之后再添加
+//     *
+//     * @param request
+//     * @return
+//     */
+//    @GetMapping
+//    public PageResult queryBySample(HttpServletRequest request) {
+//        return PageResult.error("该接口还没实现好，请通知程序猿同志继续努力~");
+//    }
+//
+//    /**
+//     * //TODO 待实现 目前还没有提供考试创建的界面
+//     * 修改考试信息
+//     *
+//     * @param command
+//     * @param request
+//     * @return
+//     */
+//    @PutMapping
+//    public Result modifyExam(@RequestBody ExamCommand command, HttpServletRequest request) {
+//        return Result.success().message("程序猿小哥哥要加油哦~");
+//    }
 }
