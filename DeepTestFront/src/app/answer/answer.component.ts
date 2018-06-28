@@ -7,6 +7,7 @@ import { Message } from "primeng/api";
 import { Config } from "../config";
 import { ActivatedRoute } from "@angular/router";
 import { CodeService } from "../service/code.service";
+import { ExamService } from "../service/exam.service";
 
 @Component({
   selector: 'app-answer',
@@ -49,7 +50,8 @@ export class AnswerComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private as: AnswerService,
-    private cs: CodeService
+    private cs: CodeService,
+    private es: ExamService
   ) {
     this.killedNum = 0;
     this.unuploadedSamples = [];
@@ -83,7 +85,7 @@ export class AnswerComponent implements OnInit {
   }
 
   getExamId(code: string, task_id: string): void {
-    this.cs.getExamId(code, task_id)
+    this.es.getExamId(code, task_id)
       .subscribe(res => {
         if (!res || !res['success']) {
           this.showError(res ? res['errorMessage'] : 'error');
@@ -96,7 +98,7 @@ export class AnswerComponent implements OnInit {
   }
 
   getExamData(examId: number): void {
-    this.as.getExam(examId)
+    this.es.getExam(examId)
       .subscribe(res => {
         console.log('examData:');
         console.log(res);

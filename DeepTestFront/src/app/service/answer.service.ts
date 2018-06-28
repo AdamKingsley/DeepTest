@@ -25,14 +25,14 @@ export class AnswerService {
 
   }
 
-  getExam(id: number): Observable<object> {
-    let url: string = `${Config.baseUrl}exam/${id}`;
-    return this.http.get(url, {
-      responseType: 'json'
-    }).pipe(
-      catchError(this.handleError('getExam', {}))
-    );
-  }
+  // getExam(id: number): Observable<object> {
+  //   let url: string = `${Config.baseUrl}exam/${id}`;
+  //   return this.http.get(url, {
+  //     responseType: 'json'
+  //   }).pipe(
+  //     catchError(this.handleError('getExam', {}))
+  //   );
+  // }
 
   getExamMutationModels(id: number): Observable<object> {
     let url: string = `${Config.baseUrl}exam/${id}/models`;

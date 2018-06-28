@@ -5,6 +5,7 @@ import { of } from "rxjs/internal/observable/of";
 import { HttpClient } from "@angular/common/http";
 import { Config } from "../config";
 import { ActivatedRoute, ActivatedRouteSnapshot } from "@angular/router";
+import { catchError } from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -15,9 +16,13 @@ export class CustomService {
     private http: HttpClient
   ) { }
 
-
   getExam(id: number): Observable<object> {
-    return of([]);
+    let url: string = `${Config.baseUrl}exam/${id}`;
+    return this.http.get(url, {
+      responseType: 'json'
+    }).pipe(
+      catchError(this.handleError('getExam', {}))
+    );
   }
 
   getSampleImages(): Observable<Sample[]> {
@@ -42,14 +47,73 @@ export class CustomService {
     return of(samples);
   }
 
-  submitSample(examId: number, userId: number, adversialImg: string): Observable<object> {
-    let url: string = `${Config.baseUrl}`;
-    return of({});
+  submitSample(examId: number,
+               models: number[],
+               imageId: number,
+               userId: number,
+               composeImageStr: string): Observable<object> {
+    let url: string = `${Config.baseUrl}process/paint/submit`;
+    return this.http.post(url, {
+      examId: examId,
+      models: models,
+      imageId: imageId,
+      userId: userId,
+      composeImageStr: composeImageStr
+    }, {
+      responseType: 'json'
+    }).pipe(
+      catchError(this.handleError('submitSamples', {}))
+    );
   }
 
   getResult(examId: number, userId: number): Observable<object> {
 
     return of({});
+  }
+
+  getThin(image: string): Observable<object> {
+    let url: string = `${Config.baseUrl}process/image/thin`;
+    return this.http.post(url, {
+      image: image
+    }, {
+      responseType: 'json'
+    }).pipe(
+      catchError(this.handleError('getThin', {}))
+    );
+  }
+
+  getThin(image: string): Observable<object> {
+    let url: string = `${Config.baseUrl}process/image/fat`;
+    return this.http.post(url, {
+      image: image
+    }, {
+      responseType: 'json'
+    }).pipe(
+      catchError(this.handleError('getThin', {}))
+    );
+  }
+
+  /**
+   * Handle Http operation that failed.
+   * Let the app continue.
+   * @param operation - name of the operation that failed
+   * @param result - optional value to return as the observable result
+   */
+  private handleError<T> (operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+
+      // TODO: send the error to remote logging infrastructure
+      // this.ms.showError(error.message);
+
+      // TODO: better job of transforming error for user consumption
+      console.log(`${operation} failed: ${error.message}`);
+
+      // Let the app keep running by returning an empty result.
+      result['success'] = false;
+      result['errorMessage'] = error.message;
+
+      return of(result);
+    };
   }
 
 }

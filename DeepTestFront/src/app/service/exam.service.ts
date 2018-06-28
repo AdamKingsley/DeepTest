@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
+import { Observable } from "rxjs/internal/Observable";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Config } from "../config";
-import { Observable } from "rxjs/internal/Observable";
-import { catchError } from "rxjs/operators";
 import { of } from "rxjs/internal/observable/of";
+import { catchError } from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
 })
-export class CodeService {
+export class ExamService {
 
   constructor(
     private http: HttpClient
@@ -24,6 +24,15 @@ export class CodeService {
       params: params
     }).pipe(
       catchError(this.handleError('getExamId', {}))
+    );
+  }
+
+  getExam(id: number): Observable<object> {
+    let url: string = `${Config.baseUrl}exam/${id}`;
+    return this.http.get(url, {
+      responseType: 'json'
+    }).pipe(
+      catchError(this.handleError('getExam', {}))
     );
   }
 
@@ -49,4 +58,5 @@ export class CodeService {
       return of(result);
     };
   }
+
 }

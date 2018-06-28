@@ -56,7 +56,7 @@ def custom_thin():
 
 
 @app.route('/custom/fat', methods=['POST'])
-def custom_thin():
+def custom_fat():
     if not request.json:
         abort(400)
     JSON = request.json
