@@ -63,7 +63,8 @@ public class TestController {
         command.setStandardModelPath("standard_model.hdf5");
         command.setImage(imageCommand);
         command.setMutaionModels(modelCommands);
-        List<PaintSubmitData> dtos = pythonFeign.paintSubmit(command);
+        //List<PaintSubmitData> dtos = pythonFeign.paintSubmit(command);
+        String dtos = pythonFeign.paintSubmit(command);
         return Result.success().message("调用成功!").withData(dtos);
     }
 

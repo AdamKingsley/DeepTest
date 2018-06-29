@@ -34,16 +34,13 @@ spring:
 management:
   security:
     enabled : false
-#data:
-#  mongodb:
-#    service_data:
-#      host: 120.79.89.98
-#      port: 27017
-#      database: business_data
-#    mnist_data:
-#      host: 120.79.89.98
-#      port: 27017
-#      database: mnist_active_data
+  context-path: /manage
+#启用shutdown
+endpoints:
+  shutdown:
+    enabled: true
+#禁用密码验证
+    sensitive: false
 
 # logging config
 logging:
@@ -53,3 +50,11 @@ logging:
 mooctest:
   url: http://api.mooctest.net/
   secretKey: YWl0ZXN0OjQwMGFjMGI0ZjhkYTQwZDZhOThmMjk5MjVjOWRjZWIx
+
+python_api:
+  url: http:/127.0.0.1:8000/
+
+base_path:
+  image: E:\PyCharmProjects\keras_mnist\MNIST_data
+  model: E:\PyCharmProjects\keras_mnist\new\del_models
+  compose_image: E:temp
