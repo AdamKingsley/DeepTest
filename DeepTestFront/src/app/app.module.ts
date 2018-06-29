@@ -12,6 +12,7 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { SliderModule } from 'primeng/slider';
 import { GrowlModule } from 'primeng/growl';
+import { MultiSelectModule } from "primeng/primeng";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NeuronsComponent } from './neurons/neurons.component';
 import { CustomComponent } from './custom/custom.component';
@@ -34,6 +35,7 @@ import { CustomComponent } from './custom/custom.component';
     DropdownModule,
     ToggleButtonModule,
     OverlayPanelModule,
+    MultiSelectModule,
     SliderModule,
     GrowlModule,
     BrowserAnimationsModule

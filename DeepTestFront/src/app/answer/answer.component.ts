@@ -6,7 +6,6 @@ import { Tag } from "../model/tag";
 import { Message } from "primeng/api";
 import { Config } from "../config";
 import { ActivatedRoute } from "@angular/router";
-import { CodeService } from "../service/code.service";
 import { ExamService } from "../service/exam.service";
 
 @Component({
@@ -15,6 +14,8 @@ import { ExamService } from "../service/exam.service";
   styleUrls: ['./answer.component.css']
 })
 export class AnswerComponent implements OnInit {
+
+  examId: number;
 
   killedNum: number;
 
@@ -50,7 +51,6 @@ export class AnswerComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private as: AnswerService,
-    private cs: CodeService,
     private es: ExamService
   ) {
     this.killedNum = 0;
@@ -92,13 +92,14 @@ export class AnswerComponent implements OnInit {
           return;
         }
         let data: object = res['data'];
+        this.examId = data['id'];
 
-        this.getExamData(data['id']);
+        this.getExamData();
       });
   }
 
-  getExamData(examId: number): void {
-    this.es.getExam(examId)
+  getExamData(): void {
+    this.es.getExam(this.examId)
       .subscribe(res => {
         console.log('examData:');
         console.log(res);

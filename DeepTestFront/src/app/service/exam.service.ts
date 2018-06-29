@@ -36,6 +36,19 @@ export class ExamService {
     );
   }
 
+  getScore(examId: number, userId: number): Observable<object> {
+    let url: string = `${Config.baseUrl}exam/score`;
+    let params: HttpParams = new HttpParams();
+    params.append('examId', `${examId}`);
+    params.append('userId', `${userId}`);
+    return this.http.get(url, {
+      responseType: 'json',
+      params: params
+    }).pipe(
+      catchError(this.handleError('getScore', {}))
+    );
+  }
+
   /**
    * Handle Http operation that failed.
    * Let the app continue.

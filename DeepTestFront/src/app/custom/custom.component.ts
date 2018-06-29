@@ -4,6 +4,8 @@ import { CustomService } from "../service/custom.service";
 import { Message } from "primeng/api";
 import { Model } from "../model/model";
 import { ActivatedRoute, ActivatedRouteSnapshot } from "@angular/router";
+import { ExamService } from "../service/exam.service";
+import { Config } from "../config";
 
 @Component({
   selector: 'app-custom',
@@ -11,6 +13,8 @@ import { ActivatedRoute, ActivatedRouteSnapshot } from "@angular/router";
   styleUrls: ['./custom.component.css']
 })
 export class CustomComponent implements OnInit {
+
+  examId: number;
 
   samples: Sample[];
   sampleBoards: any[];
@@ -22,7 +26,7 @@ export class CustomComponent implements OnInit {
   penHard: number = 100;
 
   models: Model[];
-  selectedModel: Model;
+  selectedModels: Model[];
 
   @ViewChild('board') boardRef: ElementRef;
 
@@ -35,7 +39,7 @@ export class CustomComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private cs: CustomService,
-
+    private es: ExamService
   ) {
     this.boardOptStack = [];
     this.sampleBoards = [];
@@ -44,7 +48,54 @@ export class CustomComponent implements OnInit {
 
   ngOnInit() {
     console.log(this.route.snapshot.queryParamMap);
+    // this.getExamData();
+    let code: string = this.route.snapshot.queryParamMap.get('code');
+    let task_id: string = this.route.snapshot.queryParamMap.get('task_id');
+    this.getExamId(code, task_id);
+
     this.getSamples();
+  }
+
+  getExamId(code: string, task_id: string): void {
+    this.es.getExamId(code, task_id)
+      .subscribe(res => {
+        if (!res || !res['success']) {
+          this.showError(res ? res['errorMessage'] : 'error');
+          return;
+        }
+        let data: object = res['data'];
+        this.examId = data['id'];
+
+        this.getExamData();
+      });
+  }
+
+  getExamData(): void {
+    this.es.getExam(this.examId)
+      .subscribe(res => {
+        console.log('examData:');
+        console.log(res);
+        if (!res || !res['success']) {
+          this.showError(res ? res['errorMessage'] : 'error');
+          return;
+        }
+        let data: object = res['data'];
+
+        let allImages: any[] = data['allImages'];
+        // let killedModelIds: any[] = data['killedModelIds'];
+        let models: any[] = data['models'];
+        // let selectedImageIds: any[] = data['selectedImageIds'];
+        // let times = data['times'];
+
+        this.models = models;
+
+        for (let i = 0; i < allImages.length; i++) {
+          let sample: Sample = allImages[i];
+          sample.path = Config.baseImgPrefix + sample.path;
+          sample.thumbnailPath = Config.baseImgPrefix + sample.thumbnailPath;
+          this.samples.push(sample);
+        }
+      });
   }
 
   getSamples(): void {
@@ -124,7 +175,7 @@ export class CustomComponent implements OnInit {
         ctx.arc(currX, currY, that.penWidth, 0, Math.PI * 2);
         // ctx.fillStyle = `rgba(${that.penColor}, ${that.penColor}, ${that.penColor}, ${that.penOpacity / 100})`;
         ctx.fillStyle = radialGradient;
-        ctx.shadowBlur = 20 - (that.penHard) / 100 * 20;
+        ctx.shadowBlur = 10 - (that.penHard) / 100 * 10;
         ctx.shadowColor = `rgba(${that.penColor}, ${that.penColor}, ${that.penColor}, ${that.penOpacity / 100})`;
         ctx.fill();
         ctx.closePath();
@@ -146,7 +197,7 @@ export class CustomComponent implements OnInit {
         // ctx.strokeStyle = `rgba(${that.penColor}, ${that.penColor}, ${that.penColor}, ${that.penOpacity / 100})`;
         ctx.strokeStyle = linearGradient;
         ctx.lineWidth = 0;
-        ctx.shadowBlur = 20 - (that.penHard) / 100 * 20;
+        ctx.shadowBlur = 10 - (that.penHard) / 100 * 10;
         ctx.shadowColor = `rgba(${that.penColor}, ${that.penColor}, ${that.penColor}, ${that.penOpacity / 100})`;
         ctx.stroke();
         ctx.closePath();
@@ -176,6 +227,9 @@ export class CustomComponent implements OnInit {
   }
 
   reset(): void {
+    if (!this.selectedSample) {
+      return;
+    }
 
   }
 
@@ -187,10 +241,11 @@ export class CustomComponent implements OnInit {
     let ctx: CanvasRenderingContext2D
       = canvas.getContext('2d');
 
-    let data: string = canvas.toDataURL('image/png');
-    console.log(data);
+    let imageBase64: string = canvas.toDataURL('image/png');
+    console.log(imageBase64);
 
-    this.testImg = data;
+    
+    // this.cs.submitSample(s)
   }
 
   showSuccess(msg) {

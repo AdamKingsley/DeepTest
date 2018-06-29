@@ -67,7 +67,7 @@ export class CustomService {
   }
 
   getResult(examId: number, userId: number): Observable<object> {
-
+    let url: string = `${Config.baseUrl}`;
     return of({});
   }
 
@@ -82,14 +82,14 @@ export class CustomService {
     );
   }
 
-  getThin(image: string): Observable<object> {
+  getFat(image: string): Observable<object> {
     let url: string = `${Config.baseUrl}process/image/fat`;
     return this.http.post(url, {
       image: image
     }, {
       responseType: 'json'
     }).pipe(
-      catchError(this.handleError('getThin', {}))
+      catchError(this.handleError('getFat', {}))
     );
   }
 

@@ -16,7 +16,9 @@ import copy
 
 from config import config
 from mongo import MongoDB
-from python_api import redis_db
+import redis
+
+redis_db = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 
 # 将本例中将三层隐藏层经过激活函数后的切开成三个模型
