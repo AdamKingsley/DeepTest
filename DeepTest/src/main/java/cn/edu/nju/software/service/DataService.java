@@ -15,6 +15,7 @@ import cn.edu.nju.software.data.mutation.MutationData;
 import cn.edu.nju.software.dto.*;
 import cn.edu.nju.software.service.feign.PythonFeign;
 import cn.edu.nju.software.service.score.ScoreStrategyContext;
+import com.alibaba.fastjson.JSONArray;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.BeanUtils;
@@ -247,7 +248,9 @@ public class DataService {
         command.setStandardModelPath("standard_model.hdf5");
         //TODO 前后端联调测试该接口
         //调用python处理的api的 传入考试id 用户id  原图样本数据id+path 以及需要处理的变异模型的id+path 以及噪音前景图 adversial
-        return pythonFeign.paintSubmit(command);
+        String datas = pythonFeign.paintSubmit(command);
+        List<PaintSubmitData> submitDatas = JSONArray.parseArray(datas, PaintSubmitData.class);
+        return submitDatas;
     }
 
     public ImageDataDto processThin(ImageDataCommand command) {
