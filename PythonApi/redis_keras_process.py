@@ -160,6 +160,8 @@ def process():
                     'model_id': mutation['id'],
                     'isKilled': isKilled,
                     'adversial_path': adversial_path,
+                    'standard_predict': int(standard_result),
+                    'mutation_predict': int(mutation_result),
                     'compose_path': compose_path,
                     'standard_activation_data': standard_activation_data,
                     'mutation_activation_data': mutation_activation_data,

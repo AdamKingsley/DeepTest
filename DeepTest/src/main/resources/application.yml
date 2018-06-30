@@ -52,7 +52,7 @@ mooctest:
   secretKey: YWl0ZXN0OjQwMGFjMGI0ZjhkYTQwZDZhOThmMjk5MjVjOWRjZWIx
 
 python_api:
-  url: http:/127.0.0.1:8000/
+  url: 127.0.0.1:5000/
 
 base_path:
   image: E:\PyCharmProjects\keras_mnist\MNIST_data

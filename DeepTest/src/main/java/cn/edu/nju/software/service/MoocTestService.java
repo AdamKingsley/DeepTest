@@ -43,8 +43,10 @@ public class MoocTestService {
     public UserDto getUser() {
         HttpSession session = request.getSession();
         UserDto dto = (UserDto) session.getAttribute("user");
+        log.info("user dto is {}", dto);
         if (dto == null) {
             String auth_code = (String) session.getAttribute("authrization_code");
+            log.info("the auth_code is {}", auth_code);
             if (auth_code == null || auth_code.trim().isEmpty()) {
                 throw new ServiceException("用户信息丢失，请重新从慕测平台进入该考试！");
             }

@@ -29,9 +29,12 @@ public class ExamScoreDao {
     public List<Long> getKilledModelIds(Long examId, String userId) {
         Query query = new Query(Criteria.where("exam_id").is(examId).and("user_id").is(userId));
         ExamScoreData data = mongoTemplate.findOne(query, ExamScoreData.class);
-        List<Long> killedModelIds = data.getKilledModelIds();
-        if (killedModelIds == null) {
+
+        List<Long> killedModelIds = Lists.newArrayList();
+        if (data == null || data.getKilledModelIds() == null) {
             killedModelIds = Lists.newArrayList();
+        } else {
+            killedModelIds = data.getKilledModelIds();
         }
         return killedModelIds;
     }

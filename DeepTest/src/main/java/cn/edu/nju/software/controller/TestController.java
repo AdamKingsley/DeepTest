@@ -46,6 +46,11 @@ public class TestController {
 //        return moocTestConfig.getSecretKey();
 //    }
 
+    @GetMapping("score")
+    public Result getScore(){
+       return Result.success().withData(service.getScoresTest());
+    }
+
     @GetMapping("python")
     public Result testPythonFeign() {
         PaintSubmitCommand command = new PaintSubmitCommand();
