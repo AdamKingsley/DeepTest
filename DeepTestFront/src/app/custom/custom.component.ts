@@ -28,13 +28,24 @@ export class CustomComponent implements OnInit {
   models: Model[];
   selectedModels: Model[];
 
+  selectedUploadedModel: Model;
+
   @ViewChild('board') boardRef: ElementRef;
 
   boardOptStack: any[];
 
-  msgs: Message[];
+  uploadedSampleStandardData: any[];
+  uploadedSampleMutationData: any[];
+  uploadedSampleAllActive: any[];
+  enableUploadedMixView: boolean;
+  threshold: number;  //激活阈值
 
-  testImg: string;
+  modelScore: number;
+  isKilled: string;
+
+  uploadedData: any[];
+
+  msgs: Message[];
 
   constructor(
     private route: ActivatedRoute,
@@ -44,6 +55,10 @@ export class CustomComponent implements OnInit {
     this.boardOptStack = [];
     this.sampleBoards = [];
     this.models = [];
+    this.samples = [];
+
+    this.threshold = 0;
+    this.enableUploadedMixView = false;
   }
 
   ngOnInit() {
@@ -53,12 +68,13 @@ export class CustomComponent implements OnInit {
     let task_id: string = this.route.snapshot.queryParamMap.get('task_id');
     this.getExamId(code, task_id);
 
-    this.getSamples();
+    // this.getSamples();
   }
 
   getExamId(code: string, task_id: string): void {
     this.es.getExamId(code, task_id)
       .subscribe(res => {
+        console.log(res);
         if (!res || !res['success']) {
           this.showError(res ? res['errorMessage'] : 'error');
           return;
@@ -73,7 +89,7 @@ export class CustomComponent implements OnInit {
   getExamData(): void {
     this.es.getExam(this.examId)
       .subscribe(res => {
-        console.log('examData:');
+        // console.log('examData:');
         console.log(res);
         if (!res || !res['success']) {
           this.showError(res ? res['errorMessage'] : 'error');
@@ -95,13 +111,7 @@ export class CustomComponent implements OnInit {
           sample.thumbnailPath = Config.baseImgPrefix + sample.thumbnailPath;
           this.samples.push(sample);
         }
-      });
-  }
 
-  getSamples(): void {
-    this.cs.getSampleImages()
-      .subscribe(res => {
-        this.samples = res;
         for (let i = 0; i < this.samples.length; i++) {
           this.sampleBoards.push({
             id: this.samples[i].id
@@ -110,7 +120,20 @@ export class CustomComponent implements OnInit {
       });
   }
 
+  // getSamples(): void {
+  //   this.cs.getSampleImages()
+  //     .subscribe(res => {
+  //       this.samples = res;
+  //       for (let i = 0; i < this.samples.length; i++) {
+  //         this.sampleBoards.push({
+  //           id: this.samples[i].id
+  //         });
+  //       }
+  //     });
+  // }
+
   selectSample(sample: Sample): void {
+    console.log(sample);
     let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
     let ctx: CanvasRenderingContext2D
       = canvas.getContext('2d');
@@ -230,10 +253,24 @@ export class CustomComponent implements OnInit {
     if (!this.selectedSample) {
       return;
     }
+    let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
+    let ctx: CanvasRenderingContext2D
+      = canvas.getContext('2d');
+    let canvasRect: ClientRect  = canvas.getBoundingClientRect();
 
+    let left: number = canvasRect.left;
+    let top: number = canvasRect.top;
+    let width: number = canvasRect.width;
+    let height: number = canvasRect.height;
+
+    let originImage: HTMLImageElement = new Image();
+    originImage.src = this.selectedSample.path;
+    ctx.drawImage(originImage, 0, 0, width, height);
+
+    this.boardOptStack = [];
   }
 
-  uploadSample(): void {
+  getFat(): void {
     if (!this.selectedSample) {
       this.showInfo('需要选择样本！');
     }
@@ -242,10 +279,124 @@ export class CustomComponent implements OnInit {
       = canvas.getContext('2d');
 
     let imageBase64: string = canvas.toDataURL('image/png');
-    console.log(imageBase64);
 
-    
-    // this.cs.submitSample(s)
+    this.cs.getFat(imageBase64)
+      .subscribe(res => {
+        if (!res || !res['success']) {
+          this.showError(res ? res['errorMessage'] : 'error');
+          return;
+        }
+
+        let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
+        let ctx: CanvasRenderingContext2D
+          = canvas.getContext('2d');
+        let canvasRect: ClientRect  = canvas.getBoundingClientRect();
+
+        let left: number = canvasRect.left;
+        let top: number = canvasRect.top;
+        let width: number = canvasRect.width;
+        let height: number = canvasRect.height;
+
+        let originImage: HTMLImageElement = new Image();
+        originImage.crossOrigin = '*';
+        originImage.onload = function () {
+          ctx.drawImage(originImage, 0, 0, width, height);
+        };
+        originImage.src = 'data:image/png;base64,' + res['data']['image'];
+      });
+  }
+
+  getThin(): void {
+    if (!this.selectedSample) {
+      this.showInfo('需要选择样本！');
+    }
+    let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
+    let ctx: CanvasRenderingContext2D
+      = canvas.getContext('2d');
+
+    let imageBase64: string = canvas.toDataURL('image/png');
+
+    this.cs.getThin(imageBase64)
+      .subscribe(res => {
+        if (!res || !res['success']) {
+          this.showError(res ? res['errorMessage'] : 'error');
+          return;
+        }
+
+        let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
+        let ctx: CanvasRenderingContext2D
+          = canvas.getContext('2d');
+        let canvasRect: ClientRect  = canvas.getBoundingClientRect();
+
+        let left: number = canvasRect.left;
+        let top: number = canvasRect.top;
+        let width: number = canvasRect.width;
+        let height: number = canvasRect.height;
+
+        let originImage: HTMLImageElement = new Image();
+        originImage.crossOrigin = '*';
+        originImage.onload = function () {
+          ctx.drawImage(originImage, 0, 0, width, height);
+        };
+        originImage.src = 'data:image/png;base64,' + res['data']['image'];
+      });
+  }
+
+  uploadSample(): void {
+    if (!this.selectedSample) {
+      this.showInfo('需要选择样本！');
+    }
+    if (!this.selectedModels || this.selectedModels.length == 0) {
+      this.showError('需要选择运行的模型！');
+      return;
+    }
+    let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
+    let ctx: CanvasRenderingContext2D
+      = canvas.getContext('2d');
+
+    let imageBase64: string = canvas.toDataURL('image/png');
+
+    let modelsId: number[] = this.selectedModels.map(model => {
+        return model.id;
+    });
+
+    this.cs.submitSample(this.examId, modelsId, this.selectedSample.id, imageBase64)
+      .subscribe(res => {
+        console.log(res);
+        if (!res || !res['success']) {
+          this.showError(res ? res['errorMessage'] : 'error');
+          return;
+        }
+
+        this.uploadedData = res['data'];
+        this.selectedUploadedModel = this.selectedModels[0];
+        this.chooseModel();
+
+        this.getScore();
+      });
+  }
+
+  chooseModel(): void {
+    if (!this.selectedUploadedModel) {
+      return;
+    }
+    for (let i = 0; i < this.uploadedData.length; i++) {
+      if (this.uploadedData[i]['modelId'] == this.selectedUploadedModel.id) {
+        this.uploadedSampleStandardData = this.uploadedData[i]['standardActivationData'];
+        this.uploadedSampleMutationData = this.uploadedData[i]['mutationActivationData'];
+        this.uploadedSampleAllActive = [[], [], []];
+        this.modelScore = this.uploadedData[i]['score'];
+        this.isKilled = this.uploadedData[i]['isKilled'] ? '是' : '否';
+        return;
+      }
+    }
+  }
+
+  getScore(): void {
+    this.es.getScore(this.examId)
+      .subscribe(res => {
+        console.log(res);
+      });
   }
 
   showSuccess(msg) {

@@ -89,7 +89,7 @@ h4.card-title {
   margin-top: 10px;
 }
 
-.board-tools h5 {
+h5 {
   margin-top: 10px;
   font-size: 1rem;
 }
@@ -101,4 +101,16 @@ h4.card-title {
 .button-wrapper {
   margin-top: 15px;
   margin-bottom: 15px;
+}
+
+#neuron-details {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: none;
+  top: 100px;
+  left: 100px;
+  padding: 10px;
+  z-index: 100;
+  font-size: 12px;
 }

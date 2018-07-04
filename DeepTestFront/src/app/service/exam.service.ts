@@ -15,13 +15,15 @@ export class ExamService {
   ) { }
 
   getExamId(code: string, task_id: string): Observable<object> {
-    let url: string = `${Config.baseUrl}mooctest/exam`;
-    let params: HttpParams = new HttpParams();
-    params.append('code', code);
-    params.append('task_id', task_id);
+    let url: string = `${Config.baseUrl}mooctest/exam?code=${code}&task_id=${task_id}`;
+    console.log(url);
+    // let params: HttpParams = new HttpParams();
+    // params.append('code', code);
+    // params.append('task_id', task_id);
     return this.http.get(url, {
       responseType: 'json',
-      params: params
+      withCredentials: true
+      // params: params
     }).pipe(
       catchError(this.handleError('getExamId', {}))
     );
@@ -29,21 +31,24 @@ export class ExamService {
 
   getExam(id: number): Observable<object> {
     let url: string = `${Config.baseUrl}exam/${id}`;
+    console.log(url);
     return this.http.get(url, {
-      responseType: 'json'
+      responseType: 'json',
+      withCredentials: true
     }).pipe(
       catchError(this.handleError('getExam', {}))
     );
   }
 
-  getScore(examId: number, userId: number): Observable<object> {
-    let url: string = `${Config.baseUrl}exam/score`;
-    let params: HttpParams = new HttpParams();
-    params.append('examId', `${examId}`);
-    params.append('userId', `${userId}`);
+  getScore(examId: number): Observable<object> {
+    let url: string = `${Config.baseUrl}exam/score?examId=${examId}`;
+    // let params: HttpParams = new HttpParams();
+    // params.append('examId', `${examId}`);
+    // params.append('userId', `${userId}`);
     return this.http.get(url, {
       responseType: 'json',
-      params: params
+      withCredentials: true
+      // params: params
     }).pipe(
       catchError(this.handleError('getScore', {}))
     );

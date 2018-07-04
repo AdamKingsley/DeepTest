@@ -3,9 +3,9 @@
 """
 Basic
 """
-image_path = '/Users/Hermit/Downloads/dt_keras'
-model_path = '/Users/Hermit/Downloads/dt_keras/del_models'
-generate_image_path = '/Users/Hermit/Downloads/dt_keras'
+image_path = '/root/DeepTest/image'
+model_path = '/root/DeepTest/del_models'
+generate_image_path = '/root/DeepTest/compose_image'
 
 """
 Mongo

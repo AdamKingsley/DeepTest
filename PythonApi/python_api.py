@@ -18,7 +18,7 @@ redis_db = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return 'Hello World! Python Api'
 
 
 @app.route('/custom/paint', methods=['POST'])
@@ -73,4 +73,4 @@ if __name__ == '__main__':
 
     # start the web server
     print("* Starting web service...")
-    app.run()
+    app.run(host='0.0.0.0', port=8000)

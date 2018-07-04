@@ -30,6 +30,8 @@
                   <div class="button-wrapper">
                     <button type="button" (click)="revoke()" class="btn btn-sm btn-primary">撤销</button>
                     <button type="button" (click)="reset()" class="btn btn-sm btn-outline-primary">重置</button>
+                    <button type="button" (click)="getFat()" class="btn btn-sm btn-outline-primary">变胖</button>
+                    <button type="button" (click)="getThin()" class="btn btn-sm btn-outline-primary">变瘦</button>
                   </div>
                   <h5>画笔大小: {{ penWidth }}px<span class="small">(与原图的比例10:1)</span></h5>
                   <p-slider [(ngModel)]="penWidth" [min]="1" [max]="20"></p-slider>
@@ -51,11 +53,42 @@
             </div>
           </div>
           <div class="col-sm-8">
-            <img *ngIf="testImg" [src]="testImg">
+            <div class="card-body">
+              <h4 class="card-title">
+                模型运行情况
+                <p-toggleButton [(ngModel)]="enableUploadedMixView"
+                                offLabel="启用混合模式"
+                                onLabel="取消混合模式"
+                                [style]="{ 'font-size': '12px' }"></p-toggleButton>
+              </h4>
+              <div class="card-content">
+                <p-dropdown [options]="selectedModels"
+                            optionLabel="name"
+                            [(ngModel)]="selectedUploadedModel"
+                            (onChange)="chooseModel()"></p-dropdown>
+
+                <div class="row">
+                  <h5 class="col-sm-4">
+                    模型得分: <span>{{ modelScore }}</span>
+                  </h5>
+                  <h5 class="col-sm-4">
+                    是否杀死变异: <span>{{ isKilled }}</span>
+                  </h5>
+                </div>
+              </div>
+            </div>
+            <app-neurons [isUploaded]="true"
+                         [threshold]="threshold"
+                         [standardData]="uploadedSampleStandardData"
+                         [mutationData]="uploadedSampleMutationData"
+                         [allActive]="uploadedSampleAllActive"
+                         [enableMixView]="enableUploadedMixView"></app-neurons>
           </div>
         </div>
       </div>
     </div>
+  </div>
+  <div id="neuron-details">
   </div>
   <p-growl [(value)]="msgs"></p-growl>
 </div>

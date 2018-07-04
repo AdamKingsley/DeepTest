@@ -57,8 +57,8 @@ export class NeuronsChart {
     let formattedMutationData = NeuronsChart.dataFormat(mutationData, this.isUploaded);
 
     let top:number = this.margin.top;
-    console.log(allActive);
-    console.log(formattedMutationData);
+    // console.log(allActive);
+    // console.log(formattedMutationData);
     for (let index = 0; index < formattedStandardData.length; index++) {
       d3.select(this.target)
         .selectAll('circle .standard-layer' + index)
@@ -67,7 +67,7 @@ export class NeuronsChart {
         .append('circle')
         .classed('standard-layer' + index, true)
         .classed('important', (d, i) => {
-          console.log(i);
+          // console.log(i);
           let t = allActive[index];
           return t.indexOf(i) >= 0;
         })

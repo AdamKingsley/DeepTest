@@ -16,6 +16,7 @@ import copy
 
 from config import config
 from mongo import MongoDB
+
 import redis
 
 redis_db = redis.StrictRedis(host='localhost', port=6379, db=0)
@@ -163,6 +164,8 @@ def process():
                     'isKilled': isKilled,
                     'adversial_path': adversial_path,
                     'compose_path': compose_path,
+                    'standard_predict': int(standard_result),
+                    'mutation_predict': int(mutation_result),
                     'standard_activation_data': standard_activation_data,
                     'mutation_activation_data': mutation_activation_data,
                     'score': score,

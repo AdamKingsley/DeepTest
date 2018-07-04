@@ -37,7 +37,8 @@ export class AnswerService {
   getExamMutationModels(id: number): Observable<object> {
     let url: string = `${Config.baseUrl}exam/${id}/models`;
     return this.http.get(url, {
-      responseType: 'json'
+      responseType: 'json',
+      withCredentials: true
     }).pipe(
       catchError(this.handleError('getExamMutationModels', {}))
     );
@@ -50,7 +51,8 @@ export class AnswerService {
       examId: examId,
       userId: userId
     }, {
-      responseType: 'json'
+      responseType: 'json',
+      withCredentials: true
     }).pipe(
       catchError(this.handleError('submitSamples', {}))
     );
@@ -62,6 +64,9 @@ export class AnswerService {
       examId: examId,
       tags: tags,
       activeLocations: activeLocations
+    }, {
+      responseType: 'json',
+      withCredentials: true
     }).pipe(
       catchError(this.handleError('filterSamples', {}))
     );

@@ -50,17 +50,16 @@ export class CustomService {
   submitSample(examId: number,
                models: number[],
                imageId: number,
-               userId: number,
                composeImageStr: string): Observable<object> {
     let url: string = `${Config.baseUrl}process/paint/submit`;
     return this.http.post(url, {
       examId: examId,
       models: models,
       imageId: imageId,
-      userId: userId,
       composeImageStr: composeImageStr
     }, {
-      responseType: 'json'
+      responseType: 'json',
+      withCredentials: true
     }).pipe(
       catchError(this.handleError('submitSamples', {}))
     );
@@ -76,7 +75,8 @@ export class CustomService {
     return this.http.post(url, {
       image: image
     }, {
-      responseType: 'json'
+      responseType: 'json',
+      withCredentials: true
     }).pipe(
       catchError(this.handleError('getThin', {}))
     );
@@ -87,7 +87,8 @@ export class CustomService {
     return this.http.post(url, {
       image: image
     }, {
-      responseType: 'json'
+      responseType: 'json',
+      withCredentials: true
     }).pipe(
       catchError(this.handleError('getFat', {}))
     );

@@ -87,6 +87,7 @@ export class AnswerComponent implements OnInit {
   getExamId(code: string, task_id: string): void {
     this.es.getExamId(code, task_id)
       .subscribe(res => {
+        console.log(res);
         if (!res || !res['success']) {
           this.showError(res ? res['errorMessage'] : 'error');
           return;
@@ -101,8 +102,8 @@ export class AnswerComponent implements OnInit {
   getExamData(): void {
     this.es.getExam(this.examId)
       .subscribe(res => {
-        console.log('examData:');
-        console.log(res);
+        // console.log('examData:');
+        // console.log(res);
         if (!res || !res['success']) {
           this.showError(res ? res['errorMessage'] : 'error');
           return;
