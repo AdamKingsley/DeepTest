@@ -38,6 +38,9 @@
     <!--只显示SQL-->
     <!-- <logger name="jdbc.sqlonly" level="INFO" /> -->
     <logger name="org.springframework" level="INFO"/>
+    <!-- 打印mongodb的增删改查语句 -->
+    <!--<logger name="org.springframework.data.mongodb.core" level="INFO"/>-->
+    <logger name="org.mongodb.driver.protocol.command" level="DEBUG"/>
     <!--<logger name="org.apache.shiro" level="INFO"/>-->
 
     <!-- root -->

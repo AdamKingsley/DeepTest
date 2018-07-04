@@ -52,9 +52,9 @@ public class ExamService {
         ExamImageDto examImageDto = getExamImages(id);
         dto.setAllImages(examImageDto.getAllImages());
         dto.setSelectedImageIds(examImageDto.getSelectedImageIds());
-        List<Long> killIds = submitDao.getKilledModelIds(id, commonService.getUserId());
+        List<Long> killIds = examScoreDao.getKilledModelIds(id, commonService.getUserId());
         dto.setKilledModelIds(killIds);
-        dto.setTimes(submitDao.getSubmitTimes(id, commonService.getUserId()));
+        dto.setTimes(submitCountDao.getCount(id, commonService.getUserId()));
         return dto;
     }
 

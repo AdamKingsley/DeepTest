@@ -1,20 +1,27 @@
 package cn.edu.nju.software.service;
 
-import cn.edu.nju.software.data.ActiveData;
-import cn.edu.nju.software.data.ImageData;
-import cn.edu.nju.software.data.Tag;
+import cn.edu.nju.software.command.PaintCommand;
+import cn.edu.nju.software.dao.ExamDao;
+import cn.edu.nju.software.dao.ExamScoreDao;
+import cn.edu.nju.software.dao.SubmitCountDao;
+import cn.edu.nju.software.data.*;
 import cn.edu.nju.software.data.mutation.DelModelData;
 import cn.edu.nju.software.data.mutation.MutationData;
 import cn.edu.nju.software.data.mutation.NeuronData;
 import cn.edu.nju.software.dto.ActiveDto;
+import cn.edu.nju.software.dto.ExamScoreDto;
+import cn.edu.nju.software.dto.PaintSubmitDto;
+import cn.edu.nju.software.service.score.ScoreStrategyContext;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.thoughtworks.proxy.toys.delegate.Delegating;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -23,7 +30,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mengf on 2018/6/3 0003.
@@ -32,6 +41,110 @@ import java.util.List;
 public class TestService {
     @Autowired
     private MongoTemplate template;
+    @Autowired
+    private SubmitCountDao submitCountDao;
+    @Autowired
+    private ExamScoreDao examScoreDao;
+    @Autowired
+    private ExamDao examDao;
+    @Autowired
+    private ScoreStrategyContext strategy;
+
+    public List<PaintSubmitDto> getScoresTest(){
+        PaintCommand paintCommand = new PaintCommand();
+        paintCommand.setUserId("123");
+        paintCommand.setExamId(3L);
+        //调用python接口跑模型 获取模型运行的结果
+        List<PaintSubmitData> submit_datas = Lists.newArrayList();
+        //添加mock数据
+        PaintSubmitData data1 = new PaintSubmitData();
+        data1.setExamId(3L);
+        data1.setUserId("123");
+        data1.setIsKilled(true);
+        data1.setScore(96.49);
+        data1.setModelId(158L);
+        data1.setImageId(523L);
+        PaintSubmitData data2 = new PaintSubmitData();
+        data2.setExamId(3L);
+        data2.setUserId("123");
+        data2.setIsKilled(true);
+        data2.setScore(96.50);
+        data2.setModelId(26L);
+        data2.setImageId(1083L);
+        submit_datas.add(data1);
+        submit_datas.add(data2);
+        //获取last_submit_time
+        Date submitTime = submit_datas.get(0).getSubmitTime();
+        //count++
+        //submitCountDao.updateCount(paintCommand.getExamId(), paintCommand.getUserId(), submitTime);
+        ExamScoreData scoreData = examScoreDao.getExamScore(paintCommand.getExamId(), paintCommand.getUserId());
+        //获取之前保存的考试成绩的data 注意空指针异常
+        //List<Long> killedModelIds = scoreData == null || scoreData.getKilledModelIds() == null ?
+        //        Lists.newArrayList() : scoreData.getKilledModelIds();
+        List<MseScoreData> mseDatas = scoreData == null || scoreData.getKilledDetail() == null ?
+                Lists.newArrayList() : scoreData.getKilledDetail();
+        //将之前已经杀死的数据构建出一个map
+        Map<Long, MseScoreData> killedMap = Maps.newConcurrentMap();
+        mseDatas.forEach(mse -> killedMap.put(mse.getModelId(), mse));
+        mseDatas = getKilledDetails(submit_datas, killedMap);
+        //更新成绩表
+        Double score = calScoreForPaintExam(paintCommand.getExamId(), paintCommand.getUserId(), mseDatas);
+        examScoreDao.updateScore(paintCommand.getExamId(), paintCommand.getUserId(), score, mseDatas);
+        List<PaintSubmitDto> dtos = Lists.newArrayList();
+        submit_datas.forEach(submitData -> {
+            PaintSubmitDto dto = new PaintSubmitDto();
+            BeanUtils.copyProperties(submitData, dto);
+            dtos.add(dto);
+        });
+        return dtos;
+    }
+
+    private Double calScoreForPaintExam(Long examId, String userId, List<MseScoreData> killedDetails) {
+        //数据准备
+        //考试中总共的model的个数
+        List<Long> modelIds = examDao.getModelIds(examId);
+        Long totalNum = (long) modelIds.size();
+        List<Long> killedModelIds = Lists.newArrayList();
+        List<Double> killedMseScore = Lists.newArrayList();
+        killedDetails.forEach(detail -> {
+            killedModelIds.add(detail.getModelId());
+            killedMseScore.add(detail.getScore());
+        });
+        //提交的次数
+        Long count = submitCountDao.getCount(examId, userId);
+
+        //计算第二种考试的成绩
+        Double score = strategy.calculateScore("calScoreForPaintSample", (long) killedModelIds.size(), totalNum, count, killedMseScore);
+        return score;
+    }
+
+    private List<MseScoreData> getKilledDetails(List<PaintSubmitData> submit_datas, Map<Long, MseScoreData> killedMap) {
+        //整合数据返回
+        submit_datas.forEach(submitData -> {
+            //只有本次提交杀死了模型才能计入成绩
+            if (submitData.getIsKilled()) {
+                MseScoreData killedDetail = killedMap.get(submitData.getModelId());
+                //如果之前已经杀死了就比较mse成绩哪家强  强者留下来
+                if (killedDetail != null) {
+                    if (killedDetail.getScore() < submitData.getScore()) {
+                        MseScoreData mseScoreData = new MseScoreData();
+                        BeanUtils.copyProperties(submitData, mseScoreData);
+                        killedMap.put(submitData.getModelId(), mseScoreData);
+                    }
+                } else {
+                    //如果之前没有杀死的话，保留信息
+                    //killedModelIds.add(submitData.getModelId());
+                    MseScoreData mseScoreData = new MseScoreData();
+                    BeanUtils.copyProperties(submitData, mseScoreData);
+                    //mseDatas.add(mseScoreData);
+                    killedMap.put(mseScoreData.getModelId(), mseScoreData);
+                }
+            }
+        });
+        List<MseScoreData> mseScoreDataList = Lists.newArrayList();
+        killedMap.values().forEach(mseScoreData -> mseScoreDataList.add(mseScoreData));
+        return mseScoreDataList;
+    }
 
 
     public List<ActiveDto> getSamples() {

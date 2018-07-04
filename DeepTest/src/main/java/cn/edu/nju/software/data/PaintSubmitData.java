@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -27,6 +28,13 @@ public class PaintSubmitData {
     @JSONField(name = "user_id")
     private String userId;
 
+    @Field("standard_predict")
+    @JSONField(name = "standard_predict")
+    private Integer standardPredict;
+
+    @Field("mutation_predict")
+    @JSONField(name = "mutation_predict")
+    private Integer mutationPredict;
     @Field("image_id")
     @JSONField(name = "image_id")
     private Long imageId;
@@ -52,6 +60,7 @@ public class PaintSubmitData {
     private Double[][] mutationActivationData;
 
     @Field("isKilled")
+    @JSONField(name = "isKilled")
     private Boolean isKilled;
 
     @Field("score")

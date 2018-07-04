@@ -5,6 +5,7 @@ import cn.edu.nju.software.dto.ExamDto;
 import cn.edu.nju.software.dto.UserDto;
 import cn.edu.nju.software.service.ExamService;
 import cn.edu.nju.software.service.MoocTestService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("mooctest")
+@Slf4j
 public class MoocTestController {
 
     @Autowired
@@ -27,6 +29,7 @@ public class MoocTestController {
         //前端接收url请求后，将task_id和code [一般没有case id]发送给后端查询考试id
         HttpSession session = request.getSession();
         session.setAttribute("authrization_code", code);
+        log.info("the authrization code is {}", code);
         ExamDto examDto = examService.findByTaskId(taskId);
         return Result.success().message("根据mooctest task id 获取考试id成功!").withData(examDto);
     }

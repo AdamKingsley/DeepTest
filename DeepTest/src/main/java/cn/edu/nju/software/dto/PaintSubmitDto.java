@@ -23,6 +23,8 @@ public class PaintSubmitDto {
     //compose-original = adversial
     private String adversialPath;
     private String composePath;
+    private Integer standardPredict;
+    private Integer mutationPredict;
     private Double[][] standardActivationData;
     private Double[][] mutationActivationData;
     private Boolean isKilled;
