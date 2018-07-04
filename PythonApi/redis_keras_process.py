@@ -73,6 +73,9 @@ def process():
     print("* Initialize mongodb connection...")
     client = MongoDB.MongoDB(settings=mongodb_settings)
     print("* Connect success")
+    print("* Loading model")
+    standard_model = load_model(os.path.join(OSPath(model_base_path), OSPath('standard_model.hdf5')))
+    print("* Finish loading")
 
     while True:
         queue = redis_db.lrange(config.IMAGE_QUEUE, 0, config.BATCH_SIZE - 1)
@@ -130,7 +133,7 @@ def process():
 
             # 调用模型前，清空内存防止内存泄漏
             # K.clear_session()
-            standard_model = load_model(os.path.join(OSPath(model_base_path), OSPath(standard_model_path)))
+            # standard_model = load_model(os.path.join(OSPath(model_base_path), OSPath(standard_model_path)))
             # 获取三层切分模型
             standard_layer1, standard_layer2, standard_layer3 = getActivationLayers(standard_model)
             temp = standard_model.predict(np.zeros((1, 784)))
@@ -140,40 +143,51 @@ def process():
             standard_layer3_output = standard_layer3.predict(compose_data.reshape((-1, 784)))[0]
             standard_activation_data = [standard_layer1_output.tolist(), standard_layer2_output.tolist(),
                                         standard_layer3_output.tolist()]
-            for mutation in models:
-                # id 属性和 path 属性
-                mutation_model = load_model(os.path.join(OSPath(model_base_path), OSPath(mutation['path'])))
-                mutation_layer1, mutation_layer2, mutation_layer3 = getActivationLayers(mutation_model)
-                mutation_result = np.argmax(mutation_model.predict(compose_data.reshape((-1, 784)))[0], axis=0)
-                mutation_layer1_output = mutation_layer1.predict(compose_data.reshape((-1, 784)))[0]
-                mutation_layer2_output = mutation_layer2.predict(compose_data.reshape((-1, 784)))[0]
-                mutation_layer3_output = mutation_layer3.predict(compose_data.reshape((-1, 784)))[0]
-                mutation_activation_data = [mutation_layer1_output.tolist(), mutation_layer2_output.tolist(),
-                                            mutation_layer3_output.tolist()]
-                isKilled = False
-                score = 0.0
-                if mutation_result != standard_result:
-                    isKilled = True
-                    # 计算成绩
-                    score = cal_score(original_data, compose_data)
-                result = {
-                    'exam_id': exam_id,
-                    'user_id': user_id,
-                    'image_id': image_id,
-                    'model_id': mutation['id'],
-                    'isKilled': isKilled,
-                    'adversial_path': adversial_path,
-                    'standard_predict': int(standard_result),
-                    'mutation_predict': int(mutation_result),
-                    'compose_path': compose_path,
-                    'standard_predict': int(standard_result),
-                    'mutation_predict': int(mutation_result),
-                    'standard_activation_data': standard_activation_data,
-                    'mutation_activation_data': mutation_activation_data,
-                    'score': score,
-                    'submit_time': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                }
-                results.append(result)
+
+            result = {
+                'exam_id': exam_id,
+                'user_id': user_id,
+                'image_id': image_id,
+                'adversial_path': adversial_path,
+                'standard_predict': int(standard_result),
+                'standard_activation_data': standard_activation_data,
+                'score': 0,
+                'submit_time': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+            }
+            # for mutation in models:
+            #     # id 属性和 path 属性
+            #     mutation_model = load_model(os.path.join(OSPath(model_base_path), OSPath(mutation['path'])))
+            #     mutation_layer1, mutation_layer2, mutation_layer3 = getActivationLayers(mutation_model)
+            #     mutation_result = np.argmax(mutation_model.predict(compose_data.reshape((-1, 784)))[0], axis=0)
+            #     mutation_layer1_output = mutation_layer1.predict(compose_data.reshape((-1, 784)))[0]
+            #     mutation_layer2_output = mutation_layer2.predict(compose_data.reshape((-1, 784)))[0]
+            #     mutation_layer3_output = mutation_layer3.predict(compose_data.reshape((-1, 784)))[0]
+            #     mutation_activation_data = [mutation_layer1_output.tolist(), mutation_layer2_output.tolist(),
+            #                                 mutation_layer3_output.tolist()]
+            #     isKilled = False
+            #     score = 0.0
+            #     if mutation_result != standard_result:
+            #         isKilled = True
+            #         # 计算成绩
+            #         score = cal_score(original_data, compose_data)
+            #     result = {
+            #         'exam_id': exam_id,
+            #         'user_id': user_id,
+            #         'image_id': image_id,
+            #         'model_id': mutation['id'],
+            #         'isKilled': isKilled,
+            #         'adversial_path': adversial_path,
+            #         'standard_predict': int(standard_result),
+            #         'mutation_predict': int(mutation_result),
+            #         'compose_path': compose_path,
+            #         'standard_predict': int(standard_result),
+            #         'mutation_predict': int(mutation_result),
+            #         'standard_activation_data': standard_activation_data,
+            #         'mutation_activation_data': mutation_activation_data,
+            #         'score': score,
+            #         'submit_time': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+            #     }
+            #     results.append(result)
 
             results_cpy = copy.deepcopy(results)
 

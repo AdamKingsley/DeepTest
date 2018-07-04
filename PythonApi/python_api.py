@@ -40,7 +40,6 @@ def custom_sample():
             break
 
         time.sleep(config.CLIENT_SLEEP)
-    # results = process(JSON)
     print(results)
     return jsonify(results), 200
 
