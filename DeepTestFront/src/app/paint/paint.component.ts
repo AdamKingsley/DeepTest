@@ -1,151 +1,78 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { Sample } from "../model/sample";
-import { CustomService } from "../service/custom.service";
-import { Message } from "primeng/api";
-import { Model } from "../model/model";
-import { ActivatedRoute, ActivatedRouteSnapshot } from "@angular/router";
-import { ExamService } from "../service/exam.service";
-import { Config } from "../config";
 import { NeuronChart } from "../model/neuron.chart";
-import { NeuronsChart } from "../model/neurons.chart";
+import { Message } from "primeng/api";
+import { ActivatedRoute } from "@angular/router";
+import { ExamService } from "../service/exam.service";
+import { Sample } from "../model/sample";
+import { CustomComponent } from "../custom/custom.component";
+import { PaintService } from "../service/paint.service";
+import { init } from "protractor/built/launcher";
 
 @Component({
-  selector: 'app-custom',
-  templateUrl: './custom.component.html',
-  styleUrls: ['./custom.component.css']
+  selector: 'app-paint',
+  templateUrl: './paint.component.html',
+  styleUrls: ['./paint.component.css']
 })
-export class CustomComponent implements OnInit {
+export class PaintComponent implements OnInit {
 
   examId: number;
 
-  samples: Sample[];
-  sampleBoards: any[];
-  selectedSample: Sample;
+  @ViewChild('board') boardRef: ElementRef;
+  @ViewChild('wrapper') wrapperRef: ElementRef;
+  @ViewChild('neurons') neuronsRef: ElementRef;
 
   penWidth: number = 10;
   penColor: number = 255;
   penOpacity: number = 100;
   penHard: number = 100;
 
-  models: Model[];
-  selectedModels: Model[];
-
-  selectedUploadedModel: Model;
-
-  @ViewChild('board') boardRef: ElementRef;
-  @ViewChild('wrapper') wrapperRef: ElementRef;
-  @ViewChild('neurons') neuronsRef: ElementRef;
   neuronChart: NeuronChart;
+
+  selectedSample: Sample;
 
   boardOptStack: any[];
 
-  uploadedSampleStandardData: any[];
-  uploadedSampleMutationData: any[];
-  uploadedSampleAllActive: any[];
-  enableUploadedMixView: boolean;
-  threshold: number;  //激活阈值
+  threshold: number;
 
   modelScore: number;
-  isKilled: string;
-
-  uploadedData: any[];
+  predictNumber: number;
+  realNumber: number;
 
   msgs: Message[];
 
   constructor(
     private route: ActivatedRoute,
-    private cs: CustomService,
+    private ps: PaintService,
     private es: ExamService
   ) {
     this.boardOptStack = [];
-    this.sampleBoards = [];
-    this.models = [];
-    this.samples = [];
-
     this.threshold = 0;
-    this.enableUploadedMixView = false;
-
   }
 
   ngOnInit() {
     console.log(this.route.snapshot.queryParamMap);
-    // this.getExamData();
     let code: string = this.route.snapshot.queryParamMap.get('code');
     let task_id: string = this.route.snapshot.queryParamMap.get('task_id');
-    this.getExamId(code, task_id);
 
-    // this.getSamples();
+    let neuronsSVG: HTMLElement = this.neuronsRef.nativeElement;
     this.neuronChart = new NeuronChart(this.neuronsRef.nativeElement);
-
-    let neuronsSVG = this.neuronsRef.nativeElement;
-
     let wrapperHTML: HTMLElement = this.wrapperRef.nativeElement;
+
     neuronsSVG.style.width = (wrapperHTML.offsetWidth - 1) + 'px';
+
+    this.getExam();
   }
 
-  getExamId(code: string, task_id: string): void {
-    this.es.getExamId(code, task_id)
+  getExam(): void {
+    this.ps.getSample()
       .subscribe(res => {
-        console.log(res);
-        if (!res || !res['success']) {
-          this.showError(res ? res['errorMessage'] : 'error');
-          return;
-        }
-        let data: object = res['data'];
-        this.examId = data['id'];
-
-        this.getExamData();
+        let sample: Sample = <Sample> res;
+        this.selectedSample = sample;
+        this.initPaint(sample);
       });
   }
 
-  getExamData(): void {
-    this.es.getExam(this.examId)
-      .subscribe(res => {
-        // console.log('examData:');
-        console.log(res);
-        if (!res || !res['success']) {
-          this.showError(res ? res['errorMessage'] : 'error');
-          return;
-        }
-        let data: object = res['data'];
-
-        let allImages: any[] = data['allImages'];
-        // let killedModelIds: any[] = data['killedModelIds'];
-        let models: any[] = data['models'];
-        // let selectedImageIds: any[] = data['selectedImageIds'];
-        // let times = data['times'];
-
-        this.models = models;
-
-        for (let i = 0; i < allImages.length; i++) {
-          let sample: Sample = allImages[i];
-          sample.path = Config.baseImgPrefix + sample.path;
-          sample.thumbnailPath = Config.baseImgPrefix + sample.thumbnailPath;
-          this.samples.push(sample);
-        }
-
-        for (let i = 0; i < this.samples.length; i++) {
-          this.sampleBoards.push({
-            id: this.samples[i].id
-          });
-        }
-      });
-  }
-
-  // getSamples(): void {
-  //   this.cs.getSampleImages()
-  //     .subscribe(res => {
-  //       this.samples = res;
-  //       for (let i = 0; i < this.samples.length; i++) {
-  //         this.sampleBoards.push({
-  //           id: this.samples[i].id
-  //         });
-  //       }
-  //     });
-  // }
-
-  selectSample(sample: Sample): void {
-    console.log(sample);
+  initPaint(sample: Sample): void {
     let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
     let ctx: CanvasRenderingContext2D
       = canvas.getContext('2d');
@@ -156,36 +83,20 @@ export class CustomComponent implements OnInit {
     let width: number = canvasRect.width;
     let height: number = canvasRect.height;
 
-    if (this.selectedSample) {
-      for (let i = 0; i < this.sampleBoards.length; i++) {
-        if (this.sampleBoards[i]['id'] == this.selectedSample.id) {
-          this.sampleBoards[i]['imgData'] = ctx.getImageData(0, 0, width, height);
-          break;
-        }
-      }
-    }
-    this.selectedSample = sample;
-
     ctx.clearRect(0, 0, width, height);
+    let originImage: HTMLImageElement = new Image();
+    originImage.src = sample.path;
+    console.log(originImage.src);
+    originImage.onload = function () {
+      ctx.drawImage(originImage, 0, 0, width, height);
+    };
     this.boardOptStack = [];
-
-    for (let i = 0; i < this.sampleBoards.length; i++) {
-      if (this.sampleBoards[i]['id'] == sample.id) {
-        if (!this.sampleBoards[i]['imgData']) {
-          let originImage: HTMLImageElement = new Image();
-          originImage.src = sample.path;
-          ctx.drawImage(originImage, 0, 0, width, height);
-        } else {
-          ctx.putImageData(this.sampleBoards[i]['imgData'], 0, 0);
-        }
-      }
-    }
 
     //画图坐标原点
     let sourceX: number = 0;
     let sourceY: number = 0;
 
-    let that: CustomComponent = this;
+    let that: PaintComponent = this;
 
     canvas.onmousedown = function(e: MouseEvent): void {
       sourceX = e.clientX - left;
@@ -268,7 +179,7 @@ export class CustomComponent implements OnInit {
     let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
     let ctx: CanvasRenderingContext2D
       = canvas.getContext('2d');
-    let canvasRect: ClientRect  = canvas.getBoundingClientRect();
+    let canvasRect: ClientRect = canvas.getBoundingClientRect();
 
     let left: number = canvasRect.left;
     let top: number = canvasRect.top;
@@ -285,81 +196,30 @@ export class CustomComponent implements OnInit {
   getFat(): void {
     if (!this.selectedSample) {
       this.showInfo('需要选择样本！');
+      return;
     }
     let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
     let ctx: CanvasRenderingContext2D
       = canvas.getContext('2d');
 
     let imageBase64: string = canvas.toDataURL('image/png');
-
-    this.cs.getFat(imageBase64)
-      .subscribe(res => {
-        if (!res || !res['success']) {
-          this.showError(res ? res['errorMessage'] : 'error');
-          return;
-        }
-
-        let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
-        let ctx: CanvasRenderingContext2D
-          = canvas.getContext('2d');
-        let canvasRect: ClientRect  = canvas.getBoundingClientRect();
-
-        let left: number = canvasRect.left;
-        let top: number = canvasRect.top;
-        let width: number = canvasRect.width;
-        let height: number = canvasRect.height;
-
-        let originImage: HTMLImageElement = new Image();
-        originImage.crossOrigin = '*';
-        originImage.onload = function () {
-          ctx.drawImage(originImage, 0, 0, width, height);
-        };
-        originImage.src = 'data:image/png;base64,' + res['data']['image'];
-      });
   }
 
   getThin(): void {
     if (!this.selectedSample) {
       this.showInfo('需要选择样本！');
+      return;
     }
     let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
     let ctx: CanvasRenderingContext2D
       = canvas.getContext('2d');
 
     let imageBase64: string = canvas.toDataURL('image/png');
-
-    this.cs.getThin(imageBase64)
-      .subscribe(res => {
-        if (!res || !res['success']) {
-          this.showError(res ? res['errorMessage'] : 'error');
-          return;
-        }
-
-        let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
-        let ctx: CanvasRenderingContext2D
-          = canvas.getContext('2d');
-        let canvasRect: ClientRect  = canvas.getBoundingClientRect();
-
-        let left: number = canvasRect.left;
-        let top: number = canvasRect.top;
-        let width: number = canvasRect.width;
-        let height: number = canvasRect.height;
-
-        let originImage: HTMLImageElement = new Image();
-        originImage.crossOrigin = '*';
-        originImage.onload = function () {
-          ctx.drawImage(originImage, 0, 0, width, height);
-        };
-        originImage.src = 'data:image/png;base64,' + res['data']['image'];
-      });
   }
 
   uploadSample(): void {
     if (!this.selectedSample) {
-      this.showInfo('需要选择样本！');
-    }
-    if (!this.selectedModels || this.selectedModels.length == 0) {
-      this.showError('需要选择运行的模型！');
+      this.showInfo('需要选择样本');
       return;
     }
     let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
@@ -368,49 +228,18 @@ export class CustomComponent implements OnInit {
 
     let imageBase64: string = canvas.toDataURL('image/png');
 
-    let modelsId: number[] = this.selectedModels.map(model => {
-        return model.id;
-    });
-
-    this.cs.submitSample(this.examId, modelsId, this.selectedSample.id, imageBase64)
+    this.ps.getData()
       .subscribe(res => {
-        console.log(res);
-        if (!res || !res['success']) {
-          this.showError(res ? res['errorMessage'] : 'error');
-          return;
-        }
-
-        this.uploadedData = res['data'];
-        this.selectedUploadedModel = this.selectedModels[0];
-        this.chooseModel();
-
-        this.getScore();
+        this.renderChart(res);
       });
   }
 
-  chooseModel(): void {
-    if (!this.selectedUploadedModel) {
-      return;
-    }
-    for (let i = 0; i < this.uploadedData.length; i++) {
-      if (this.uploadedData[i]['modelId'] == this.selectedUploadedModel.id) {
-        this.uploadedSampleStandardData = this.uploadedData[i]['standardActivationData'];
-
-        // this.uploadedSampleMutationData = this.uploadedData[i]['mutationActivationData'];
-        // this.uploadedSampleAllActive = [[], [], []];
-        this.neuronChart.render(this.uploadedSampleStandardData);
-        this.modelScore = this.uploadedData[i]['score'];
-        this.isKilled = this.uploadedData[i]['isKilled'] ? '是' : '否';
-        return;
-      }
-    }
+  renderChart(data): void {
+    this.neuronChart.render(data['activation_data']);
   }
 
   getScore(): void {
-    this.es.getScore(this.examId)
-      .subscribe(res => {
-        console.log(res);
-      });
+
   }
 
   showSuccess(msg) {
@@ -433,7 +262,7 @@ export class CustomComponent implements OnInit {
     this.msgs.push({severity:'error', summary:'Error Message', detail: msg});
   }
 
-  countPoint(x1: number, y1: number, x2: number, y2: number, width: number): number[][] {
+  private countPoint(x1: number, y1: number, x2: number, y2: number, width: number): number[][] {
     if (x1 == x2) {
       return [[x1, y1 - width / 2], [x1, y1 + width / 2], [x2, y2 + width / 2], [x2, y2 - width / 2]];
     }
@@ -454,5 +283,3 @@ export class CustomComponent implements OnInit {
   }
 
 }
-
-

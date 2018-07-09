@@ -62,10 +62,10 @@
                                 [style]="{ 'font-size': '12px' }"></p-toggleButton>
               </h4>
               <div class="card-content">
-                <p-dropdown [options]="selectedModels"
-                            optionLabel="name"
-                            [(ngModel)]="selectedUploadedModel"
-                            (onChange)="chooseModel()"></p-dropdown>
+                <!--<p-dropdown [options]="selectedModels"-->
+                            <!--optionLabel="name"-->
+                            <!--[(ngModel)]="selectedUploadedModel"-->
+                            <!--(onChange)="chooseModel()"></p-dropdown>-->
 
                 <div class="row">
                   <h5 class="col-sm-4">
@@ -77,12 +77,11 @@
                 </div>
               </div>
             </div>
-            <app-neurons [isUploaded]="true"
-                         [threshold]="threshold"
-                         [standardData]="uploadedSampleStandardData"
-                         [mutationData]="uploadedSampleMutationData"
-                         [allActive]="uploadedSampleAllActive"
-                         [enableMixView]="enableUploadedMixView"></app-neurons>
+            <div #wrapper class="neurons-wrapper">
+              <svg #neurons>
+
+              </svg>
+            </div>
           </div>
         </div>
       </div>
