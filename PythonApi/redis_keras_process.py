@@ -51,11 +51,25 @@ def OSPath(path):
 
 # 计算成绩
 def cal_score(original_data, compose_data):
-    count = np.sum((original_data.reshape(28, 28) - compose_data.reshape(28, 28)) ** 2)
-    # 平方和 / 784
-    mse_pow = float(count) / float(len(original_data.flatten()))
+    test_count = 0
+    for i in range(0, 784):
+        x = original_data.reshape(784)[i]
+        y = compose_data.reshape(784)[i]
+        temp = (int(x) - int(y)) ** 2
+        test_count = test_count + temp
+    # print(test_count)
+
+    mse_pow = float(test_count) / float(784)
     mse = math.sqrt(mse_pow)
-    score = 100 / (1 + math.pow(math.e, (mse - 50) / 15))
+    # print(mse)
+    # div = mse / 70
+    score = 100 / (1 + math.pow(math.e, (mse - 70) / 15))
+
+    # count = np.sum((original_data.reshape(28, 28) - compose_data.reshape(28, 28)) ** 2)
+    # # 平方和 / 784
+    # mse_pow = float(count) / float(len(original_data.flatten()))
+    # mse = math.sqrt(mse_pow)
+    # score = 100 / (1 + math.pow(math.e, (mse - 50) / 15))
     return score
 
 
@@ -162,7 +176,7 @@ def process():
                 'isKilled': isKilled,
                 'adversial_path': adversial_path,
                 'original_predict': int(image_tag),
-                'standard_predict': int(standard_result),
+                # 'standard_predict': int(standard_result),
                 # 'mutation_predict': int(mutation_result),
                 'compose_path': compose_path,
                 'standard_predict': int(standard_result),
