@@ -5,12 +5,14 @@ import cn.edu.nju.software.command.python.ModelCommand;
 import cn.edu.nju.software.command.python.PaintSubmitCommand;
 import cn.edu.nju.software.common.result.Result;
 import cn.edu.nju.software.data.ActiveData;
+import cn.edu.nju.software.data.CaseData;
 import cn.edu.nju.software.data.PaintSubmitData;
 import cn.edu.nju.software.dto.PaintSubmitDto;
 import cn.edu.nju.software.service.MoocTestService;
 import cn.edu.nju.software.service.TestService;
 import cn.edu.nju.software.service.feign.PythonFeign;
 import com.google.common.collect.Lists;
+import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -47,8 +49,8 @@ public class TestController {
 //    }
 
     @GetMapping("score")
-    public Result getScore(){
-       return Result.success().withData(service.getScoresTest());
+    public Result getScore() {
+        return Result.success().withData(service.getScoresTest());
     }
 
     @GetMapping("python")
@@ -71,6 +73,21 @@ public class TestController {
         //List<PaintSubmitData> dtos = pythonFeign.paintSubmit(command);
         String dtos = pythonFeign.paintSubmit(command);
         return Result.success().message("调用成功!").withData(dtos);
+    }
+
+    @GetMapping("insert/case")
+    public Result insertCases() {
+        List<CaseData> datas = Lists.newArrayList();
+        for (int i = 0; i < 30; i++) {
+            CaseData data = new CaseData();
+            data.setCaseId(i+"");
+            data.setExamId(3L);
+            data.setImageId(i * 30L);
+            data.setIsKilled(false);
+            datas.add(data);
+        }
+        service.insertCases(datas);
+        return Result.success().withData(datas);
     }
 
     @GetMapping("secretKey")

@@ -1,6 +1,7 @@
 package cn.edu.nju.software.service;
 
 import cn.edu.nju.software.command.mooctest.AccessTokenCommand;
+import cn.edu.nju.software.command.mooctest.AssignTaskCommand;
 import cn.edu.nju.software.common.exception.ServiceException;
 import cn.edu.nju.software.data.mooctest.AccessToken;
 import cn.edu.nju.software.data.mooctest.SessionTicket;
@@ -21,6 +22,7 @@ public class MoocTestService {
     private MoocTestFeign moocTestFeign;
     @Autowired
     private HttpServletRequest request;
+
 
     // TODO 为了测试该接口将该方法设置为了public之后需要设置为private
     //默认从session获取token，如果session失效就从mooctest接口中重新获取acesstoken
@@ -59,7 +61,13 @@ public class MoocTestService {
         return dto;
     }
 
-    public void assignTask() {
+    /**
+     * 提交考试成绩接口
+     *
+     * @param command
+     */
+    public void assignTask(AssignTaskCommand command) {
         //提交用户的考试成绩
+        moocTestFeign.assignTask(accessToken(), command);
     }
 }

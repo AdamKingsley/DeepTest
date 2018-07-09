@@ -43,7 +43,7 @@ public class MoocTestController {
 
     @PostMapping("/assignTask")
     public Result assignTask() {
-        moocTestService.assignTask();
+        //moocTestService.assignTask();
         return Result.success().message("提交考试成绩成功!");
     }
 }

@@ -1,25 +1,19 @@
 package cn.edu.nju.software.service;
 
 import cn.edu.nju.software.command.PaintCommand;
-import cn.edu.nju.software.dao.ExamDao;
-import cn.edu.nju.software.dao.ExamScoreDao;
-import cn.edu.nju.software.dao.SubmitCountDao;
+import cn.edu.nju.software.dao.*;
 import cn.edu.nju.software.data.*;
 import cn.edu.nju.software.data.mutation.DelModelData;
 import cn.edu.nju.software.data.mutation.MutationData;
 import cn.edu.nju.software.data.mutation.NeuronData;
 import cn.edu.nju.software.dto.ActiveDto;
-import cn.edu.nju.software.dto.ExamScoreDto;
 import cn.edu.nju.software.dto.PaintSubmitDto;
 import cn.edu.nju.software.service.score.ScoreStrategyContext;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.thoughtworks.proxy.toys.delegate.Delegating;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +22,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import javax.jws.Oneway;
 import java.io.*;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -48,9 +42,13 @@ public class TestService {
     @Autowired
     private ExamDao examDao;
     @Autowired
+    private CaseDao caseDao;
+    @Autowired
+    private ImageDao imageDao;
+    @Autowired
     private ScoreStrategyContext strategy;
 
-    public List<PaintSubmitDto> getScoresTest(){
+    public List<PaintSubmitDto> getScoresTest() {
         PaintCommand paintCommand = new PaintCommand();
         paintCommand.setUserId("123");
         paintCommand.setExamId(3L);
@@ -247,6 +245,12 @@ public class TestService {
 
         }
     }
-    // 创建考试数据
 
+    public void insertCases(List<CaseData> datas) {
+        datas.forEach(data -> {
+            ImageData imagedata = imageDao.findById(data.getImageId());
+            data.setPath(imagedata.getPath());
+        });
+        caseDao.insertMany(datas);
+    }
 }

@@ -13,8 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 public class AssignTaskCommand {
     @JSONField(name = "task_id")
-    private Long taskId;
-
+    private String taskId;
+    @JSONField(name = "score")
+    private Double score;
     @JSONField(name = "scoreDetails")
     private List<ScoreCommand> scoreDetails;
 }

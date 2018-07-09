@@ -28,6 +28,10 @@ public class PaintSubmitData {
     @JSONField(name = "user_id")
     private String userId;
 
+    @Field("case_id")
+    @JSONField(name = "case_id")
+    private String caseId;
+
     @Field("standard_predict")
     @JSONField(name = "standard_predict")
     private Integer standardPredict;
