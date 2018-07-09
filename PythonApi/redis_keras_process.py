@@ -36,7 +36,7 @@ def getMutaionImage(original, compose):
     compose_data = np.array(compose) / float(255)
     # 167/784的位置的数据有变化
     # print(len(adversial_data[np.where(adversial_data > 0)]))
-    adversial_data = compose_data - original_data;
+    adversial_data = compose_data - original_data
     # compose_data = original_data.copy()
     # compose_data[np.where(adversial_data != 0)] = adversial_data[np.where(adversial_data != 0)]
     return original_data, adversial_data, compose_data
@@ -90,9 +90,12 @@ def process():
             exam_id = q['exam_id']
             image_id = q['image']['id']
             image_path = q['image']['path']
-            models = q['mutation_models']
+            image_tag = q['image']['tag']
+            # models = q['mutation_models']
             standard_model_path = q['standard_model_path']
             user_id = q['user_id']
+            case_id = q['case_id']
+            print(q)
             # ------- 初始化配置end ----------------
 
             imageIDs.append(imageId)
@@ -136,7 +139,7 @@ def process():
             # standard_model = load_model(os.path.join(OSPath(model_base_path), OSPath(standard_model_path)))
             # 获取三层切分模型
             standard_layer1, standard_layer2, standard_layer3 = getActivationLayers(standard_model)
-            temp = standard_model.predict(np.zeros((1, 784)))
+            # temp = standard_model.predict(np.zeros((1, 784)))
             standard_result = np.argmax(standard_model.predict(compose_data.reshape((-1, 784)))[0], axis=0)
             standard_layer1_output = standard_layer1.predict(compose_data.reshape((-1, 784)))[0]
             standard_layer2_output = standard_layer2.predict(compose_data.reshape((-1, 784)))[0]
@@ -144,16 +147,32 @@ def process():
             standard_activation_data = [standard_layer1_output.tolist(), standard_layer2_output.tolist(),
                                         standard_layer3_output.tolist()]
 
+            isKilled = False
+            score = 0.0
+            if int(image_tag) != int(standard_result):
+                isKilled = True
+                # 计算成绩 TODO cal_score函数需要进行测试
+                score = cal_score(original_data, compose_data)
             result = {
                 'exam_id': exam_id,
                 'user_id': user_id,
                 'image_id': image_id,
+                'case_id': case_id,
+                # 'model_id': mutation['id'],
+                'isKilled': isKilled,
                 'adversial_path': adversial_path,
+                'original_predict': int(image_tag),
                 'standard_predict': int(standard_result),
+                # 'mutation_predict': int(mutation_result),
+                'compose_path': compose_path,
+                'standard_predict': int(standard_result),
+                # 'mutation_predict': int(mutation_result),
                 'standard_activation_data': standard_activation_data,
-                'score': 0,
+                # 'mutation_activation_data': mutation_activation_data,
+                'score': score,
                 'submit_time': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             }
+            results.append(result)
             # for mutation in models:
             #     # id 属性和 path 属性
             #     mutation_model = load_model(os.path.join(OSPath(model_base_path), OSPath(mutation['path'])))
