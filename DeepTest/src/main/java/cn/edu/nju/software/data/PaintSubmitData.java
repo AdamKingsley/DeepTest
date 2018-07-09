@@ -35,6 +35,7 @@ public class PaintSubmitData {
     @Field("mutation_predict")
     @JSONField(name = "mutation_predict")
     private Integer mutationPredict;
+
     @Field("image_id")
     @JSONField(name = "image_id")
     private Long imageId;

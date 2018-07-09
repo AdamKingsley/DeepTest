@@ -5,7 +5,6 @@ import cn.edu.nju.software.command.PaintCommand;
 import cn.edu.nju.software.command.SubmitCommand;
 import cn.edu.nju.software.command.python.ImageCommand;
 import cn.edu.nju.software.command.python.ImageDataCommand;
-import cn.edu.nju.software.command.python.ModelCommand;
 import cn.edu.nju.software.command.python.PaintSubmitCommand;
 import cn.edu.nju.software.common.exception.ServiceException;
 import cn.edu.nju.software.dao.*;
@@ -17,7 +16,6 @@ import cn.edu.nju.software.service.feign.PythonFeign;
 import cn.edu.nju.software.service.score.ScoreStrategyContext;
 import com.alibaba.fastjson.JSONArray;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -158,39 +156,66 @@ public class DataService {
         }
     }
 
+    //    public List<PaintSubmitDto> submit(PaintCommand paintCommand) {
+//        // 时间检查
+//        ExamData data = examDao.getSimpleExamData(paintCommand.getExamId());
+//        // 如果不在考试时间范围内的话，不允许提交
+//        checkTime(data.getStartTime(), data.getEndTime());
+//        List<MutationData> models = modelDao.getModelByIds(paintCommand.getModels());
+//        ImageData imageData = imageDao.findById(paintCommand.getImageId());
+//        //调用python接口跑模型 获取模型运行的结果
+//        List<PaintSubmitData> submit_datas = getPaintSubmitDatas(paintCommand, models, imageData);
+//        //获取last_submit_time
+//        Date submitTime = submit_datas.get(0).getSubmitTime();
+//        //count++
+//        submitCountDao.updateCount(paintCommand.getExamId(), paintCommand.getUserId(), submitTime);
+//        ExamScoreData scoreData = examScoreDao.getExamScore(paintCommand.getExamId(), paintCommand.getUserId());
+//        //获取之前保存的考试成绩的data 注意空指针异常
+//        //List<Long> killedModelIds = scoreData == null || scoreData.getKilledModelIds() == null ?
+//        //        Lists.newArrayList() : scoreData.getKilledModelIds();
+//        List<MseScoreData> mseDatas = scoreData == null || scoreData.getKilledDetail() == null ?
+//                Lists.newArrayList() : scoreData.getKilledDetail();
+//        //将之前已经杀死的数据构建出一个map
+//        Map<Long, MseScoreData> killedMap = Maps.newConcurrentMap();
+//        mseDatas.forEach(mse -> killedMap.put(mse.getModelId(), mse));
+//        mseDatas = getKilledDetails(submit_datas, killedMap);
+//        //更新成绩表
+//        Double score = calScoreForPaintExam(paintCommand.getExamId(), paintCommand.getUserId(), mseDatas);
+//        examScoreDao.updateScore(paintCommand.getExamId(), paintCommand.getUserId(), score, mseDatas);
+//        List<PaintSubmitDto> dtos = Lists.newArrayList();
+//        submit_datas.forEach(submitData -> {
+//            PaintSubmitDto dto = new PaintSubmitDto();
+//            BeanUtils.copyProperties(submitData, dto);
+//            dtos.add(dto);
+//        });
+//        return dtos;
+//    }
     public List<PaintSubmitDto> submit(PaintCommand paintCommand) {
         // 时间检查
         ExamData data = examDao.getSimpleExamData(paintCommand.getExamId());
         // 如果不在考试时间范围内的话，不允许提交
         checkTime(data.getStartTime(), data.getEndTime());
-        List<MutationData> models = modelDao.getModelByIds(paintCommand.getModels());
+        //List<MutationData> models = modelDao.getModelByIds(paintCommand.getModels());
         ImageData imageData = imageDao.findById(paintCommand.getImageId());
         //调用python接口跑模型 获取模型运行的结果
-        List<PaintSubmitData> submit_datas = getPaintSubmitDatas(paintCommand, models, imageData);
+        List<PaintSubmitData> submit_datas = getPaintSubmitDatas(paintCommand, imageData);
         //获取last_submit_time
         Date submitTime = submit_datas.get(0).getSubmitTime();
         //count++
         submitCountDao.updateCount(paintCommand.getExamId(), paintCommand.getUserId(), submitTime);
-        ExamScoreData scoreData = examScoreDao.getExamScore(paintCommand.getExamId(), paintCommand.getUserId());
-        //获取之前保存的考试成绩的data 注意空指针异常
-        //List<Long> killedModelIds = scoreData == null || scoreData.getKilledModelIds() == null ?
-        //        Lists.newArrayList() : scoreData.getKilledModelIds();
-        List<MseScoreData> mseDatas = scoreData == null || scoreData.getKilledDetail() == null ?
-                Lists.newArrayList() : scoreData.getKilledDetail();
-        //将之前已经杀死的数据构建出一个map
-        Map<Long, MseScoreData> killedMap = Maps.newConcurrentMap();
-        mseDatas.forEach(mse -> killedMap.put(mse.getModelId(), mse));
-        mseDatas = getKilledDetails(submit_datas, killedMap);
-        //更新成绩表
-        Double score = calScoreForPaintExam(paintCommand.getExamId(), paintCommand.getUserId(), mseDatas);
-        examScoreDao.updateScore(paintCommand.getExamId(), paintCommand.getUserId(), score, mseDatas);
-        List<PaintSubmitDto> dtos = Lists.newArrayList();
-        submit_datas.forEach(submitData -> {
+        //TODO ！！！！
+        //成绩回传到mooctest 若失败抛出异常 捕获后返回给前端
+
+        //回传成功的话更新考试成绩表score 并且根据成绩是否提升更新case表的数据
+
+        //返回给前端运行数据的结果信息
+        List<PaintSubmitDto> results = Lists.newArrayList();
+        submit_datas.forEach(submit_data -> {
             PaintSubmitDto dto = new PaintSubmitDto();
-            BeanUtils.copyProperties(submitData, dto);
-            dtos.add(dto);
+            BeanUtils.copyProperties(submit_data, dto);
+            results.add(dto);
         });
-        return dtos;
+        return results;
     }
 
     private List<MseScoreData> getKilledDetails(List<PaintSubmitData> submit_datas, Map<Long, MseScoreData> killedMap) {
@@ -227,31 +252,55 @@ public class DataService {
         return imageDtos;
     }
 
-    private List<PaintSubmitData> getPaintSubmitDatas(PaintCommand paintCommand, List<MutationData> models, ImageData imageData) {
-        //整理models为modelCommand
-        List<ModelCommand> model_commands = Lists.newArrayList();
-        models.forEach(model -> {
-            ModelCommand modelCommand = new ModelCommand();
-            BeanUtils.copyProperties(model, modelCommand);
-            model_commands.add(modelCommand);
-        });
+    private List<PaintSubmitData> getPaintSubmitDatas(PaintCommand paintCommand, ImageData imageData) {
         //整理image为imageCommand
         ImageCommand imageCommand = new ImageCommand();
         BeanUtils.copyProperties(imageData, imageCommand);
+        //设置image的tag数据
+        imageCommand.setTag(imageData.getTags().get(0).getValue());
 
         PaintSubmitCommand command = new PaintSubmitCommand();
         command.setComposeImageStr(paintCommand.getComposeImageStr());
         command.setUserId(paintCommand.getUserId() == null ? commonService.getUserId() : paintCommand.getUserId());
         command.setExamId(paintCommand.getExamId());
-        command.setMutaionModels(model_commands);
+        command.setCaseId(paintCommand.getCaseId());
+        //command.setMutaionModels(model_commands);
         command.setImage(imageCommand);
         command.setStandardModelPath("standard_model.hdf5");
         //TODO 前后端联调测试该接口
         //调用python处理的api的 传入考试id 用户id  原图样本数据id+path 以及需要处理的变异模型的id+path 以及噪音前景图 adversial
         String datas = pythonFeign.paintSubmit(command);
-        List<PaintSubmitData> submitDatas = JSONArray.parseArray(datas, PaintSubmitData.class);
-        return submitDatas;
+        List<PaintSubmitData> paintSubmitDatas = JSONArray.parseArray(datas, PaintSubmitData.class);
+        return paintSubmitDatas;
     }
+
+//    private List<PaintSubmitData> getPaintSubmitDatas(PaintCommand paintCommand, List<MutationData> models, ImageData imageData) {
+//        //整理models为modelCommand
+//        List<ModelCommand> model_commands = Lists.newArrayList();
+//        models.forEach(model -> {
+//            ModelCommand modelCommand = new ModelCommand();
+//            BeanUtils.copyProperties(model, modelCommand);
+//            model_commands.add(modelCommand);
+//        });
+//        //整理image为imageCommand
+//        ImageCommand imageCommand = new ImageCommand();
+//        BeanUtils.copyProperties(imageData, imageCommand);
+//        //设置image的tag数据
+//        imageCommand.setTag(imageData.getTags().get(0).getValue());
+//
+//        PaintSubmitCommand command = new PaintSubmitCommand();
+//        command.setComposeImageStr(paintCommand.getComposeImageStr());
+//        command.setUserId(paintCommand.getUserId() == null ? commonService.getUserId() : paintCommand.getUserId());
+//        command.setExamId(paintCommand.getExamId());
+//        command.setMutaionModels(model_commands);
+//        command.setImage(imageCommand);
+//        command.setStandardModelPath("standard_model.hdf5");
+//        //TODO 前后端联调测试该接口
+//        //调用python处理的api的 传入考试id 用户id  原图样本数据id+path 以及需要处理的变异模型的id+path 以及噪音前景图 adversial
+//        String datas = pythonFeign.paintSubmit(command);
+//        List<PaintSubmitData> submitDatas = JSONArray.parseArray(datas, PaintSubmitData.class);
+//        return submitDatas;
+//    }
 
     public ImageDataDto processThin(ImageDataCommand command) {
         return pythonFeign.processThin(command);

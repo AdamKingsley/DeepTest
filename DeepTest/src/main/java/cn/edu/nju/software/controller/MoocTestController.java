@@ -27,6 +27,7 @@ public class MoocTestController {
     public Result redirectToExam(@RequestParam("task_id") String taskId, @RequestParam(value = "case_id", required = false) String caseId,
                                  @RequestParam("code") String code, HttpServletRequest request, HttpServletResponse response) {
         //前端接收url请求后，将task_id和code [一般没有case id]发送给后端查询考试id
+        //修改为需要添加考试的case_id，考试仅返回考试
         HttpSession session = request.getSession();
         session.setAttribute("authrization_code", code);
         log.info("the authrization code is {}", code);

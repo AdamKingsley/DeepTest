@@ -15,6 +15,8 @@ public class PaintSubmitCommand {
     private Long examId;
     @JSONField(name = "user_id")
     private String userId;
+    @JSONField(name = "case_id")
+    private String caseId;
     private ImageCommand image;
     @JSONField(name = "mutation_models")
     private List<ModelCommand> mutaionModels;

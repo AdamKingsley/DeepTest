@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class ImageCommand {
     private Long id;
     private String path;
+    private Object tag;
 }
