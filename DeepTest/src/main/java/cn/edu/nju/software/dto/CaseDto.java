@@ -13,5 +13,5 @@ public class CaseDto {
     private String caseId;
     private Long imageId;
     private String path;
-    private String compose_path;
+    private String composePath;
 }

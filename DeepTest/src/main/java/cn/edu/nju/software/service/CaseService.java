@@ -1,5 +1,6 @@
 package cn.edu.nju.software.service;
 
+import cn.edu.nju.software.common.exception.ServiceException;
 import cn.edu.nju.software.dao.CaseDao;
 import cn.edu.nju.software.data.CaseData;
 import cn.edu.nju.software.dto.CaseDto;
@@ -22,7 +23,10 @@ public class CaseService {
      */
     public CaseDto getCaseDto(Long examId, String caseId) {
         CaseDto caseDto = new CaseDto();
-        CaseData caseData = caseDao.getCaseData(examId,caseId);
+        CaseData caseData = caseDao.getCaseData(examId, caseId);
+        if (caseData == null) {
+            throw new ServiceException("获取题目数据失败！没有该题目信息！");
+        }
         BeanUtils.copyProperties(caseData, caseDto);
         return caseDto;
     }

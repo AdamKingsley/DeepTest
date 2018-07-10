@@ -200,6 +200,9 @@ public class DataService {
     public List<PaintSubmitDto> submit(PaintCommand paintCommand) {
         // 时间检查
         ExamData data = examDao.getSimpleExamData(paintCommand.getExamId());
+        if (data == null) {
+            throw new ServiceException("考试信息获取失败！");
+        }
         // 如果不在考试时间范围内的话，不允许提交
         checkTime(data.getStartTime(), data.getEndTime());
         //List<MutationData> models = modelDao.getModelByIds(paintCommand.getModels());
@@ -261,23 +264,23 @@ public class DataService {
 
     //TODO 提交成绩的接口调用 问一下黄老师和梅杰学长
     private void assignScore(PaintSubmitData submitData, String taskId) {
-        AssignTaskCommand command = new AssignTaskCommand();
-        command.setTaskId(taskId);
-        command.setScore(submitData.getScore());
-        ScoreCommand scoreCommand = new ScoreCommand();
-        scoreCommand.setScore(submitData.getScore());
-        scoreCommand.setOpenId(commonService.getUserId());
-        List<ScoreDetailCommand> details = Lists.newArrayList();
-        ScoreDetailCommand scoreDetailCommand = new ScoreDetailCommand();
-        scoreDetailCommand.setCaseId(submitData.getCaseId());
-        scoreDetailCommand.setScore(submitData.getScore());
-        details.add(scoreDetailCommand);
-        scoreCommand.setDetails(details);
-        List<ScoreCommand> scoreDetails = Lists.newArrayList();
-        scoreDetails.add(scoreCommand);
-        command.setScoreDetails(scoreDetails);
-        //提交成绩
-        moocTestService.assignTask(command);
+//        AssignTaskCommand command = new AssignTaskCommand();
+//        command.setTaskId(taskId);
+//        command.setScore(submitData.getScore());
+//        ScoreCommand scoreCommand = new ScoreCommand();
+//        scoreCommand.setScore(submitData.getScore());
+//        scoreCommand.setOpenId(commonService.getUserId());
+//        List<ScoreDetailCommand> details = Lists.newArrayList();
+//        ScoreDetailCommand scoreDetailCommand = new ScoreDetailCommand();
+//        scoreDetailCommand.setCaseId(submitData.getCaseId());
+//        scoreDetailCommand.setScore(submitData.getScore());
+//        details.add(scoreDetailCommand);
+//        scoreCommand.setDetails(details);
+//        List<ScoreCommand> scoreDetails = Lists.newArrayList();
+//        scoreDetails.add(scoreCommand);
+//        command.setScoreDetails(scoreDetails);
+//        //提交成绩
+//        moocTestService.assignTask(command);
     }
 
     private List<MseScoreData> getKilledDetails(List<PaintSubmitData> submit_datas, Map<Long, MseScoreData> killedMap) {
