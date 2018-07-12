@@ -27,6 +27,8 @@ public class ExamData {
     private Integer type;
     @Field("taskId")
     private String taskId;
+    @Field("case_list")
+    private List<CaseData> caseList;
     @Field("image_ids")
     private List<Long> imageIds;
     @Field("model_ids")

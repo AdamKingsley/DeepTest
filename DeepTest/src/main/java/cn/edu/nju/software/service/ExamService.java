@@ -22,20 +22,6 @@ import java.util.List;
 public class ExamService {
     @Autowired
     private ExamDao examDao;
-    @Autowired
-    private ModelDao modelDao;
-    @Autowired
-    private ImageDao imageDao;
-    @Autowired
-    private SubmitDao submitDao;
-    @Autowired
-    private SubmitCountDao submitCountDao;
-
-    @Autowired
-    private ExamScoreDao examScoreDao;
-
-    @Autowired
-    private CommonService commonService;
 
 
     public void create(ExamCommand command) {
@@ -46,66 +32,7 @@ public class ExamService {
         examDao.insert(data);
     }
 
-    public ExamDto getExamDetail(Long id) {
-        ExamDto dto = new ExamDto();
-        dto.setModels(getExamModels(id));
-        ExamImageDto examImageDto = getExamImages(id);
-        dto.setAllImages(examImageDto.getAllImages());
-        dto.setSelectedImageIds(examImageDto.getSelectedImageIds());
-        List<Long> killIds = examScoreDao.getKilledModelIds(id, commonService.getUserId());
-        dto.setKilledModelIds(killIds);
-        dto.setTimes(submitCountDao.getCount(id, commonService.getUserId()));
-        return dto;
-    }
 
-    public List<ModelDto> getExamModels(Long id) {
-        List<ModelDto> modelDtos = Lists.newArrayList();
-        List<Long> modelIds = examDao.getModelIds(id);
-        List<MutationData> datas = modelDao.getModelByIds(modelIds);
-        datas.forEach(data -> {
-            ModelDto dto = new ModelDto();
-            BeanUtils.copyProperties(data, dto);
-            modelDtos.add(dto);
-        });
-        return modelDtos;
-    }
-
-    public ExamImageDto getExamImages(Long id) {
-        List<ImageDto> allImageDtos = Lists.newArrayList();
-        List<ImageDto> selectImageDtos = Lists.newArrayList();
-
-        //获取考试所有的样本图片的数据，然后从image_data表中获取图片的具体信息
-        List<Long> allImageIds = examDao.getImageIds(id);
-        List<ImageData> allImages = imageDao.findByIds(allImageIds);
-        allImages.forEach(image -> {
-            ImageDto dto = new ImageDto();
-            BeanUtils.copyProperties(image, dto);
-            allImageDtos.add(dto);
-        });
-
-        List<Long> selectedImageIds = submitDao.getSubmitImageIds(id, commonService.getUserId());
-
-        //组装数据返回
-        ExamImageDto dto = new ExamImageDto();
-        dto.setAllImages(allImageDtos);
-        dto.setSelectedImageIds(selectedImageIds);
-        return dto;
-    }
-
-    public Long getSubmitCount(Long id) {
-        //之前是通过count进行的统计
-        //return submitDao.getSubmitTimes(id, commonService.getUserId());
-        //如今将count放在了examCount表中
-        return submitCountDao.getCount(id, commonService.getUserId());
-    }
-
-    public List<Long> getKilledIds(Long id) {
-        //直接是通过submit_data表进行的统计
-        //List<Long> killIds = submitDao.getKilledModelIds(id, commonService.getUserId());
-        //return killIds;
-        //如今将数据放在了exam_score表中
-        return examScoreDao.getKilledModelIds(id, commonService.getUserId());
-    }
 
     public ExamDto findByTaskId(String taskId) {
         ExamData examData = examDao.getExamIdByTaskId(taskId);
@@ -115,10 +42,4 @@ public class ExamService {
         return dto;
     }
 
-    public ExamScoreDto getScore(Long examId, String userId) {
-        ExamScoreData scoreData = examScoreDao.getExamScore(examId, userId);
-        ExamScoreDto dto = new ExamScoreDto();
-        BeanUtils.copyProperties(scoreData, dto);
-        return dto;
-    }
 }

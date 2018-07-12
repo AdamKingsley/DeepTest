@@ -43,6 +43,7 @@ public class MoocTestController {
 
     @PostMapping("/assignTask")
     public Result assignTask() {
+        //TODO delete this method, cause assignTask was in the service method
         //moocTestService.assignTask();
         return Result.success().message("提交考试成绩成功!");
     }
