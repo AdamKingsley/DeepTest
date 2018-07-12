@@ -4,9 +4,7 @@ import { Message } from "primeng/api";
 import { ActivatedRoute } from "@angular/router";
 import { ExamService } from "../service/exam.service";
 import { Sample } from "../model/sample";
-import { CustomComponent } from "../custom/custom.component";
 import { PaintService } from "../service/paint.service";
-import { init } from "protractor/built/launcher";
 import { Config } from "../config";
 import { CustomService } from "../service/custom.service";
 

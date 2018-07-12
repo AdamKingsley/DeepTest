@@ -18,7 +18,6 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NeuronsComponent } from './neurons/neurons.component';
-import { CustomComponent } from './custom/custom.component';
 import { PaintComponent } from './paint/paint.component';
 
 @NgModule({
@@ -26,7 +25,6 @@ import { PaintComponent } from './paint/paint.component';
     AppComponent,
     AnswerComponent,
     NeuronsComponent,
-    CustomComponent,
     PaintComponent
   ],
   imports: [
