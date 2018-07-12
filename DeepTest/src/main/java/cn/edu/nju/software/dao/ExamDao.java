@@ -21,45 +21,10 @@ public class ExamDao {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public List<MutationData> findModels(Long examId) {
-        //TODO 可否有连表查询提高效率的方法？
-        Query query = Query.query(Criteria.where("_id").is(examId));
-        ExamData data = mongoTemplate.findOne(query, ExamData.class);
-        List<Long> modelIds = data.getModelIds();
-        query = new Query(Criteria.where("_id").in(modelIds));
-        List<MutationData> mutationDatas = mongoTemplate.find(query, MutationData.class);
-        return mutationDatas;
-    }
-
-    public List<MutationData> findByModelIds(Collection<Long> ids) {
-        //TODO 可否有连表查询提高效率的方法？
-        Query query = Query.query(Criteria.where("_id").in(ids));
-        query = new Query(Criteria.where("_id").in(ids));
-        List<MutationData> mutationDatas = mongoTemplate.find(query, MutationData.class);
-        return mutationDatas;
-    }
-
     public void insert(ExamData examData) {
         mongoTemplate.insert(examData);
     }
 
-    public List<Long> getImageIds(Long id) {
-        Query query = QueryUtil.queryByField("image_ids");
-        ExamData example = new ExamData();
-        example.setId(id);
-        query.addCriteria(Criteria.byExample(example));
-        ExamData data = mongoTemplate.findOne(query, ExamData.class);
-        return data.getImageIds();
-    }
-
-    public List<Long> getModelIds(Long id) {
-        Query query = QueryUtil.queryByField("model_ids");
-        ExamData example = new ExamData();
-        example.setId(id);
-        query.addCriteria(Criteria.byExample(example));
-        ExamData data = mongoTemplate.findOne(query, example.getClass());
-        return data.getModelIds();
-    }
 
     public ExamData getExamIdByTaskId(String taskId) {
         Query query = QueryUtil.queryByField("_id", "type");
@@ -75,9 +40,4 @@ public class ExamDao {
         return data;
     }
 
-    public ExamData getExamData(Long id) {
-        Query query = new Query(Criteria.where("_id").is(id));
-        ExamData data = mongoTemplate.findOne(query, ExamData.class);
-        return data;
-    }
 }
