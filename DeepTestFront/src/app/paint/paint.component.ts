@@ -7,6 +7,8 @@ import { Sample } from "../model/sample";
 import { CustomComponent } from "../custom/custom.component";
 import { PaintService } from "../service/paint.service";
 import { init } from "protractor/built/launcher";
+import { Config } from "../config";
+import { CustomService } from "../service/custom.service";
 
 @Component({
   selector: 'app-paint',
@@ -16,6 +18,8 @@ import { init } from "protractor/built/launcher";
 export class PaintComponent implements OnInit {
 
   examId: number;
+
+  caseId: number;
 
   @ViewChild('board') boardRef: ElementRef;
   @ViewChild('wrapper') wrapperRef: ElementRef;
@@ -28,6 +32,7 @@ export class PaintComponent implements OnInit {
 
   neuronChart: NeuronChart;
 
+  composePath: string;
   selectedSample: Sample;
 
   boardOptStack: any[];
@@ -40,19 +45,25 @@ export class PaintComponent implements OnInit {
 
   msgs: Message[];
 
+  display: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private ps: PaintService,
-    private es: ExamService
+    private es: ExamService,
+    private cs: CustomService
   ) {
     this.boardOptStack = [];
     this.threshold = 0;
   }
 
   ngOnInit() {
-    console.log(this.route.snapshot.queryParamMap);
+    // console.log(this.route.snapshot.queryParamMap);
     let code: string = this.route.snapshot.queryParamMap.get('code');
     let task_id: string = this.route.snapshot.queryParamMap.get('task_id');
+    let case_id: string = this.route.snapshot.queryParamMap.get('case_id');
+
+    this.caseId = parseInt(case_id);
 
     let neuronsSVG: HTMLElement = this.neuronsRef.nativeElement;
     this.neuronChart = new NeuronChart(this.neuronsRef.nativeElement);
@@ -60,19 +71,52 @@ export class PaintComponent implements OnInit {
 
     neuronsSVG.style.width = (wrapperHTML.offsetWidth - 1) + 'px';
 
-    this.getExam();
+    // this.getExamCase();
+    this.getExamId(code, task_id);
   }
 
-  getExam(): void {
-    this.ps.getSample()
+  getExamId(code: string, task_id: string) {
+    this.es.getExamId(code, task_id)
       .subscribe(res => {
-        let sample: Sample = <Sample> res;
-        this.selectedSample = sample;
-        this.initPaint(sample);
+        // console.log(res);
+        if (!res || !res['success']) {
+          this.showError(res ? res['message'] : 'error');
+          return;
+        }
+        let data: object = res['data'];
+        this.examId = data['id'];
+
+        this.getExamCase();
       });
   }
 
-  initPaint(sample: Sample): void {
+  getExamCase(): void {
+    // this.ps.getSample()
+    //   .subscribe(res => {
+    //     let sample: Sample = <Sample> res;
+    //     this.selectedSample = sample;
+    //     this.initPaint(sample);
+    //   });
+    this.es.getExamCase(this.examId, this.caseId)
+      .subscribe(res => {
+        console.log(res);
+        if (!res || !res['success']) {
+          this.showError(res ? res['message'] : 'error');
+          return;
+        }
+        let data: object = res['data'];
+        this.selectedSample = new Sample();
+        this.selectedSample.id = data['imageId'];
+        this.selectedSample.path = Config.baseImgPrefix + data['path'];
+        this.selectedSample.thumbnailPath = Config.baseImgPrefix + data['path'];
+
+        this.composePath = data['composePath'];
+
+        this.initPaint(this.selectedSample, this.composePath);
+      });
+  }
+
+  initPaint(sample: Sample, composeImage: string): void {
     let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
     let ctx: CanvasRenderingContext2D
       = canvas.getContext('2d');
@@ -84,9 +128,16 @@ export class PaintComponent implements OnInit {
     let height: number = canvasRect.height;
 
     ctx.clearRect(0, 0, width, height);
+
     let originImage: HTMLImageElement = new Image();
-    originImage.src = sample.path;
-    console.log(originImage.src);
+
+    if (composeImage) {
+      originImage.src = Config.baseComposeImgPrefix + composeImage;
+    } else {
+      originImage.src = sample.path;
+    }
+    originImage.crossOrigin = 'Anonymous';
+    // console.log(originImage.src);
     originImage.onload = function () {
       ctx.drawImage(originImage, 0, 0, width, height);
     };
@@ -173,6 +224,8 @@ export class PaintComponent implements OnInit {
   }
 
   reset(): void {
+    // this.display = true;
+
     if (!this.selectedSample) {
       return;
     }
@@ -188,12 +241,18 @@ export class PaintComponent implements OnInit {
 
     let originImage: HTMLImageElement = new Image();
     originImage.src = this.selectedSample.path;
-    ctx.drawImage(originImage, 0, 0, width, height);
+
+    originImage.onload = function () {
+      ctx.drawImage(originImage, 0, 0, width, height);
+    };
+    // ctx.drawImage(originImage, 0, 0, width, height);
 
     this.boardOptStack = [];
   }
 
   getFat(): void {
+    this.display = true;
+
     if (!this.selectedSample) {
       this.showInfo('需要选择样本！');
       return;
@@ -203,9 +262,38 @@ export class PaintComponent implements OnInit {
       = canvas.getContext('2d');
 
     let imageBase64: string = canvas.toDataURL('image/png');
+
+    this.cs.getFat(imageBase64)
+      .subscribe(res => {
+        this.display = false;
+
+        if (!res || !res['success']) {
+          this.showError(res ? res['message'] : 'error');
+          return;
+        }
+
+        let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
+        let ctx: CanvasRenderingContext2D
+          = canvas.getContext('2d');
+        let canvasRect: ClientRect  = canvas.getBoundingClientRect();
+
+        let left: number = canvasRect.left;
+        let top: number = canvasRect.top;
+        let width: number = canvasRect.width;
+        let height: number = canvasRect.height;
+
+        let originImage: HTMLImageElement = new Image();
+        originImage.setAttribute("crossOrigin",'Anonymous');
+        originImage.crossOrigin = '*';
+        originImage.onload = function () {
+          ctx.drawImage(originImage, 0, 0, width, height);
+        };
+        originImage.src = 'data:image/png;base64,' + res['data']['image'];
+      });
   }
 
   getThin(): void {
+    this.display = true;
     if (!this.selectedSample) {
       this.showInfo('需要选择样本！');
       return;
@@ -215,22 +303,67 @@ export class PaintComponent implements OnInit {
       = canvas.getContext('2d');
 
     let imageBase64: string = canvas.toDataURL('image/png');
+
+    this.cs.getThin(imageBase64)
+      .subscribe(res => {
+        this.display = false;
+
+        if (!res || !res['success']) {
+          this.showError(res ? res['message'] : 'error');
+          return;
+        }
+
+        let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
+        let ctx: CanvasRenderingContext2D
+          = canvas.getContext('2d');
+        let canvasRect: ClientRect  = canvas.getBoundingClientRect();
+
+        let left: number = canvasRect.left;
+        let top: number = canvasRect.top;
+        let width: number = canvasRect.width;
+        let height: number = canvasRect.height;
+
+        let originImage: HTMLImageElement = new Image();
+        originImage.setAttribute("crossOrigin",'Anonymous');
+        originImage.crossOrigin = '*';
+        originImage.onload = function () {
+          ctx.drawImage(originImage, 0, 0, width, height);
+        };
+        originImage.src = 'data:image/png;base64,' + res['data']['image'];
+      });
   }
 
   uploadSample(): void {
+    this.showDialog();
+
     if (!this.selectedSample) {
       this.showInfo('需要选择样本');
       return;
     }
     let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
-    let ctx: CanvasRenderingContext2D
-      = canvas.getContext('2d');
+    // let ctx: CanvasRenderingContext2D
+    //   = canvas.getContext('2d');
 
     let imageBase64: string = canvas.toDataURL('image/png');
 
-    this.ps.getData()
+    this.ps.submitSample(this.examId, this.caseId, this.selectedSample.id, imageBase64)
       .subscribe(res => {
-        this.renderChart(res);
+        // console.log(res);
+
+        this.sleep(2000);
+
+        this.display = false;
+        if (!res || !res['success']) {
+          this.showError(res ? res['message'] : 'error');
+          return;
+        }
+        let data: object = res['data'][0];
+
+        let standardActivationData: any[][] = data['standardActivationData'];
+        this.neuronChart.render(standardActivationData);
+        this.predictNumber = data['standardPredict'];
+        this.modelScore = data['score'].toFixed(2);
+        this.realNumber = data['originalPredict'];
       });
   }
 
@@ -262,6 +395,10 @@ export class PaintComponent implements OnInit {
     this.msgs.push({severity:'error', summary:'Error Message', detail: msg});
   }
 
+  showDialog(): void {
+    this.display = true;
+  }
+
   private countPoint(x1: number, y1: number, x2: number, y2: number, width: number): number[][] {
     if (x1 == x2) {
       return [[x1, y1 - width / 2], [x1, y1 + width / 2], [x2, y2 + width / 2], [x2, y2 - width / 2]];
@@ -280,6 +417,11 @@ export class PaintComponent implements OnInit {
     result.push([x2 - width / (2 * c) * b, y2 + width / (2 * c) * a]);
 
     return result;
+  }
+
+  private sleep(d: number): void {
+    let t: number = Date.now();
+    while (Date.now() - t < d) {}
   }
 
 }
