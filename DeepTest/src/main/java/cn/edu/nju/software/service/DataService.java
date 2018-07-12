@@ -1,6 +1,7 @@
 package cn.edu.nju.software.service;
 
 import cn.edu.nju.software.command.PaintCommand;
+import cn.edu.nju.software.command.mooctest.AssignTaskCommand;
 import cn.edu.nju.software.command.python.ImageCommand;
 import cn.edu.nju.software.command.python.ImageDataCommand;
 import cn.edu.nju.software.command.python.PaintSubmitCommand;
@@ -13,13 +14,13 @@ import cn.edu.nju.software.service.feign.PythonFeign;
 import cn.edu.nju.software.service.score.ScoreStrategyContext;
 import com.alibaba.fastjson.JSONArray;
 import com.google.common.collect.Lists;
+import org.apache.catalina.User;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by mengf on 2018/6/7 0007.
@@ -73,18 +74,22 @@ public class DataService {
         //调用python接口跑模型 获取模型运行的结果
         List<PaintSubmitData> submit_datas = getPaintSubmitDatas(paintCommand, imageData);
         //获取case当前的基础信息
-        CaseData caseData = caseDao.getCaseData(paintCommand.getExamId(), paintCommand.getCaseId());
+        UserCaseData caseData = caseDao.getUserCaseData(paintCommand.getExamId(), paintCommand.getUserId(), paintCommand.getCaseId());
         //获取last_submit_time
         Date submitTime = submit_datas.get(0).getSubmitTime();
         //count++
         submitCountDao.updateCount(paintCommand.getExamId(), paintCommand.getUserId(), submitTime);
-        //TODO ！！！！
+        //更新case的基本信息情况
+        boolean update_result = false;
+        for (PaintSubmitData submitData : submit_datas) {
+            update_result = updateCaseInfo(submitData, caseData, data.getTaskId());
+        }
         //成绩回传到mooctest 若失败抛出异常 捕获后返回给前端
         //size == 0
-        for (PaintSubmitData submitData : submit_datas) {
-            updateCaseInfo(submitData, caseData, data.getTaskId());
+        if (update_result) {
+            //成绩需要更新，需要重新向慕测提交成绩信息
+            assignScore(paintCommand.getExamId(), paintCommand.getUserId(), data.getTaskId());
         }
-
         //返回给前端运行数据的结果信息
         List<PaintSubmitDto> results = Lists.newArrayList();
         submit_datas.forEach(submit_data -> {
@@ -95,38 +100,46 @@ public class DataService {
         return results;
     }
 
-    private void updateCaseInfo(PaintSubmitData submitData, CaseData caseData, String taskId) {
+    private boolean updateCaseInfo(PaintSubmitData submitData, UserCaseData caseData, String taskId) {
+        boolean result = false;
         //回传成功的话更新考试成绩表score 并且根据成绩是否提升更新case表的数据
         if (submitData.getIsKilled()) {
             //如果caseData杀死了
             if (caseData.getIsKilled()) {
                 //如果最新的case的分数比原来高
                 if (caseData.getScore() < submitData.getScore()) {
-                    caseDao.updateCaseData(submitData.getExamId(), submitData.getCaseId(),
+                    caseDao.updateCaseData(submitData.getExamId(), submitData.getUserId(), submitData.getCaseId(),
                             submitData.getComposePath(), submitData.getComposePath(),
                             submitData.getScore(), submitData.getIsKilled());
-                    //发送回mooctest成绩
-                    assignScore(submitData, taskId);
+                    //表示得分高 分数需要重新计算
+                    result = true;
                 } else {
                     //如果不比原来高的话就直接存储的是最新的绘图地址
-                    caseDao.updateLastComposePath(submitData.getExamId(), submitData.getCaseId(), submitData.getComposePath());
+                    caseDao.updateLastComposePath(submitData.getExamId(), submitData.getUserId(), submitData.getCaseId(), submitData.getComposePath());
                 }
             } else {
                 //如果第一次杀死就直接更新数据
-                caseDao.updateCaseData(submitData.getExamId(), submitData.getCaseId(),
+                //表示得分
+                caseDao.updateCaseData(submitData.getExamId(), submitData.getUserId(), submitData.getCaseId(),
                         submitData.getComposePath(), submitData.getComposePath(),
                         submitData.getScore(), submitData.getIsKilled());
-                //发送回mooctest成绩
-                assignScore(submitData, taskId);
+                result = true;
             }
         } else {
             //没杀死只是更新最后的绘制的图片数据
-            caseDao.updateLastComposePath(submitData.getExamId(), submitData.getCaseId(), submitData.getComposePath());
+            caseDao.updateLastComposePath(submitData.getExamId(), submitData.getUserId(), submitData.getCaseId(), submitData.getComposePath());
         }
+        return result;
     }
 
     //TODO 提交成绩的接口调用
-    private void assignScore(PaintSubmitData submitData, String taskId) {
+    private void assignScore(Long examId, String userId, String taskId) {
+        List<UserCaseData> caseDataList = caseDao.getUserCaseDatas(examId, userId);
+        //拿到所有的成绩信息数据开始算分
+
+        //算完分后开始进行数据的组装提交
+        AssignTaskCommand command = new AssignTaskCommand();
+
 //        AssignTaskCommand command = new AssignTaskCommand();
 //        command.setTaskId(taskId);
 //        command.setScore(submitData.getScore());

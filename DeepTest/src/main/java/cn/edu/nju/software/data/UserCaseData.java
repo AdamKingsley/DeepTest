@@ -9,18 +9,20 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection = "case_data")
+@Document(collection = "user_case_data")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CaseData {
+public class UserCaseData {
     @Id
     private ObjectId id;
     @Field("exam_id")
     private Long examId;
     @Field("case_id")
     private String caseId;
+    @Field("user_id")
+    private String userId;
 
     @Field("image_id")
     private Long imageId;
@@ -28,16 +30,16 @@ public class CaseData {
     @Field("path")
     private String path;
 
-//    @Field("compose_path")
-//    private String composePath;
-//
-//    //得分最高的合成图的path
-//    @Field("max_compose_path")
-//    private String maxComposePath;
-//
-//    private Double score;
-//
-//    //是否杀死变异模型
-//    @Field("is_killed")
-//    private Boolean isKilled;
+    @Field("compose_path")
+    private String composePath;
+
+    //得分最高的合成图的path
+    @Field("max_compose_path")
+    private String maxComposePath;
+
+    private Double score;
+
+    //是否杀死变异模型
+    @Field("is_killed")
+    private Boolean isKilled;
 }
