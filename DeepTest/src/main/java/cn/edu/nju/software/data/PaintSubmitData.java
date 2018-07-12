@@ -36,6 +36,10 @@ public class PaintSubmitData {
     @JSONField(name = "standard_predict")
     private Integer standardPredict;
 
+    @Field("original_predict")
+    @JSONField(name = "original_predict")
+    private Integer originalPredict;
+
     @Field("mutation_predict")
     @JSONField(name = "mutation_predict")
     private Integer mutationPredict;

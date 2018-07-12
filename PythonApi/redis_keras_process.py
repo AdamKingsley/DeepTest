@@ -53,8 +53,8 @@ def OSPath(path):
 def cal_score(original_data, compose_data):
     test_count = 0
     for i in range(0, 784):
-        x = original_data.reshape(784)[i]
-        y = compose_data.reshape(784)[i]
+        x = (original_data.reshape(784)[i]*255).astype(np.uint8)
+        y = (compose_data.reshape(784)[i]*255).astype(np.uint8)
         temp = (int(x) - int(y)) ** 2
         test_count = test_count + temp
     # print(test_count)
@@ -133,7 +133,7 @@ def process():
             adversial_path = '_'.join((str(user_id), str(exam_id), 'adversial', time_str)) + '.png'
             compose_path = '_'.join((str(user_id), str(exam_id), 'compose', time_str)) + '.png'
             adversial_image = Image.fromarray((adversial_data.reshape(28, 28) * 255).astype(np.uint8))
-            compose_image = Image.fromarray((adversial_data.reshape(28, 28) * 255).astype(np.uint8))
+            compose_image = Image.fromarray((compose_data.reshape(28, 28) * 255).astype(np.uint8))
             print('* Save images')
             print(os.path.join(OSPath(generate_image_base_path), OSPath(adversial_path)))
             print(os.path.join(OSPath(generate_image_base_path), OSPath(compose_path)))

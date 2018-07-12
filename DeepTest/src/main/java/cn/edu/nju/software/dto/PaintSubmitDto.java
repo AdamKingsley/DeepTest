@@ -24,7 +24,8 @@ public class PaintSubmitDto {
     private String adversialPath;
     private String composePath;
     private Integer standardPredict;
-    private Integer mutationPredict;
+    private Integer originalPredict;
+    //private Integer mutationPredict;
     private Double[][] standardActivationData;
     private Double[][] mutationActivationData;
     private Boolean isKilled;
