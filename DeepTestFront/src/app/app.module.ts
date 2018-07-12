@@ -19,15 +19,13 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NeuronsComponent } from './neurons/neurons.component';
 import { CustomComponent } from './custom/custom.component';
-import { PaintComponent } from './paint/paint.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AnswerComponent,
     NeuronsComponent,
-    CustomComponent,
-    PaintComponent
+    CustomComponent
   ],
   imports: [
     BrowserModule,
