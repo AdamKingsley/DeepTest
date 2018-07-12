@@ -30,6 +30,18 @@ public class CaseDao {
     }
 
     /**
+     * 查询某次考试的所有题目
+     *
+     * @param examId
+     * @return
+     */
+    public List<CaseData> getCaseDatas(Long examId) {
+        Query query = new Query(Criteria.where("exam_id").is(examId));
+        List<CaseData> caseDatas = template.find(query, CaseData.class);
+        return caseDatas;
+    }
+
+    /**
      * 更新某道题目的最后修改，
      * 以后进入的时候方便用户直接看到上次修改
      *
@@ -64,4 +76,6 @@ public class CaseDao {
     public void insertMany(List<CaseData> datas) {
         template.insert(datas, CaseData.class);
     }
+
+
 }
