@@ -22,8 +22,7 @@ import java.util.List;
 public class ExamService {
     @Autowired
     private ExamDao examDao;
-    @Autowired
-    private ModelDao modelDao;
+
     @Autowired
     private ImageDao imageDao;
     @Autowired
@@ -46,29 +45,7 @@ public class ExamService {
         examDao.insert(data);
     }
 
-    public ExamDto getExamDetail(Long id) {
-        ExamDto dto = new ExamDto();
-        dto.setModels(getExamModels(id));
-        ExamImageDto examImageDto = getExamImages(id);
-        dto.setAllImages(examImageDto.getAllImages());
-        dto.setSelectedImageIds(examImageDto.getSelectedImageIds());
-        List<Long> killIds = examScoreDao.getKilledModelIds(id, commonService.getUserId());
-        dto.setKilledModelIds(killIds);
-        dto.setTimes(submitCountDao.getCount(id, commonService.getUserId()));
-        return dto;
-    }
 
-    public List<ModelDto> getExamModels(Long id) {
-        List<ModelDto> modelDtos = Lists.newArrayList();
-        List<Long> modelIds = examDao.getModelIds(id);
-        List<MutationData> datas = modelDao.getModelByIds(modelIds);
-        datas.forEach(data -> {
-            ModelDto dto = new ModelDto();
-            BeanUtils.copyProperties(data, dto);
-            modelDtos.add(dto);
-        });
-        return modelDtos;
-    }
 
     public ExamImageDto getExamImages(Long id) {
         List<ImageDto> allImageDtos = Lists.newArrayList();
