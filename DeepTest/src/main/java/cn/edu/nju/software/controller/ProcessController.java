@@ -28,8 +28,8 @@ public class ProcessController {
 
     @Autowired
     private CommonService commonService;
-    @Autowired
-    private OperationService operationService;
+//    @Autowired
+//    private OperationService operationService;
 
     //TODO 这个controller的URL 我写的自己混乱了…… 跟老司机商量一下
     //USER id 前端传过来？还是后端直接取到？
@@ -123,7 +123,7 @@ public class ProcessController {
         output = output == null ? false : output;
         ActiveDto dto = dataService.getActivaData(imageId, modelId, output);
         //存储操作记录
-        operationService.saveOperation(imageId, modelId, commonService.getUserId());
+        //operationService.saveOperation(imageId, modelId, commonService.getUserId());
         return Result.success().message("获取激活信息成功").withData(dto);
     }
 
