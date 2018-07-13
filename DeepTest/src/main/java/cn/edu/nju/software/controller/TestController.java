@@ -81,7 +81,7 @@ public class TestController {
         for (int i = 0; i < 30; i++) {
             CaseData data = new CaseData();
             data.setCaseId(i+"");
-            data.setExamId(3L);
+            data.setExamId(4L);
             data.setImageId(i * 30L);
             data.setIsKilled(false);
             datas.add(data);
