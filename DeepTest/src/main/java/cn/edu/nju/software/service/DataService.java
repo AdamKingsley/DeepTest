@@ -69,6 +69,8 @@ public class DataService {
     public List<PaintSubmitDto> submit(PaintCommand paintCommand) {
         // 时间检查
         ExamData data = examDao.getSimpleExamData(paintCommand.getExamId());
+        //打印data
+        log.info(JSON.toJSONString(data));
         if (data == null) {
             throw new ServiceException("考试信息获取失败！");
         }
@@ -175,7 +177,7 @@ public class DataService {
         //pring JSONObject String of the command
         log.info(JSON.toJSONString(command));
         //TODO 提交成绩
-        //moocTestService.assignTask(command);
+        moocTestService.assignTask(command);
     }
 
     private List<PaintSubmitData> getPaintSubmitDatas(PaintCommand paintCommand, ImageData imageData) {

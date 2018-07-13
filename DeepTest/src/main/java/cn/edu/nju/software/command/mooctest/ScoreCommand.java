@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScoreCommand {
-    @JSONField(name = "openId")
+    @JSONField(name = "open_id")
     private String openId;
     @JSONField(name = "score")
     private Double score;

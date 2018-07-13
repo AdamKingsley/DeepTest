@@ -25,7 +25,7 @@ public class ExamData {
     private Long id;
     //考试类型
     private Integer type;
-    @Field("taskId")
+    @Field("task_id")
     private String taskId;
     @Field("image_ids")
     private List<Long> imageIds;
