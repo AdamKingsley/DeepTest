@@ -48,9 +48,14 @@ export class CustomComponent implements OnInit {
   modelScore: number;
   isKilled: string;
 
+  predictNumber: number;
+  realNumber: number;
+
   uploadedData: any[];
 
   msgs: Message[];
+
+  display = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -137,7 +142,7 @@ export class CustomComponent implements OnInit {
       .subscribe(res => {
         console.log(res);
         if (!res || !res['success']) {
-          this.showError(res ? res['message'] : 'error');
+          this.showError(res ? (res['message'] ? res['message'] : res['errorMessage']) : 'error');
           return;
         }
         let data: any[] = res['data'];
@@ -183,6 +188,8 @@ export class CustomComponent implements OnInit {
 
     ctx.clearRect(0, 0, width, height);
     this.boardOptStack = [];
+
+    this.neuronChart.destroy();
 
     for (let i = 0; i < this.sampleBoards.length; i++) {
       if (this.sampleBoards[i]['id'] == sample.id) {
@@ -317,8 +324,10 @@ export class CustomComponent implements OnInit {
 
     let imageBase64: string = canvas.toDataURL('image/png');
 
+    this.display = true;
     this.cs.getFat(imageBase64)
       .subscribe(res => {
+        this.display = false;
         if (!res || !res['success']) {
           this.showError(res ? res['message'] : 'error');
           return;
@@ -353,8 +362,11 @@ export class CustomComponent implements OnInit {
 
     let imageBase64: string = canvas.toDataURL('image/png');
 
+    this.display = true;
+
     this.cs.getThin(imageBase64)
       .subscribe(res => {
+        this.display = false;
         if (!res || !res['success']) {
           this.showError(res ? res['message'] : 'error');
           return;
@@ -393,15 +405,27 @@ export class CustomComponent implements OnInit {
 
     let imageBase64: string = canvas.toDataURL('image/png');
 
+    this.display = true;
+
     this.cs.submitSample(this.examId, this.selectedSample.caseId, this.selectedSample.id, imageBase64)
       .subscribe(res => {
           console.log(res);
-          if (!res || !res['success']) {
+        this.sleep(1000);
+        this.display = false;
+
+        if (!res || !res['success']) {
             this.showError(res ? res['message'] : 'error');
             return;
-          }
+        }
 
-          console.log(res);
+        console.log(res);
+        let data: object = res['data'][0];
+        let standardActivationData: any[] = data['standardActivationData'];
+
+        this.neuronChart.render(standardActivationData);
+        this.modelScore = data['score'].toFixed(2);
+        this.predictNumber = data['standardPredict'];
+        this.realNumber = data['originalPredict'];
       });
 
     // let modelsId: number[] = this.selectedModels.map(model => {
@@ -487,6 +511,11 @@ export class CustomComponent implements OnInit {
     result.push([x2 - width / (2 * c) * b, y2 + width / (2 * c) * a]);
 
     return result;
+  }
+
+  private sleep(d): void {
+    let t: number = Date.now();
+    while (Date.now() - t <= d) {}
   }
 
 }

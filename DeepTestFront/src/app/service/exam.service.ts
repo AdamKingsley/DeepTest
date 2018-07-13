@@ -43,7 +43,8 @@ export class ExamService {
   getExamCases(examId: number): Observable<object> {
     let url: string = `${Config.baseUrl}case/list?examId=${examId}`;
     return this.http.get(url, {
-      responseType: 'json'
+      responseType: 'json',
+      withCredentials: true
     }).pipe(
       catchError(this.handleError('getExamCases', {}))
     );

@@ -3,7 +3,7 @@
     <div class="col-sm-3 left-panel">
       <div class="left-panel-content card">
         <div class="card-body">
-          <h4 class="card-title">可选样本</h4>
+          <h4 class="card-title">考试题目</h4>
           <div class="samples-wrapper">
             <div class="sample-wrapper"
                  *ngFor="let sample of samples"
@@ -56,10 +56,10 @@
             <div class="card-body">
               <h4 class="card-title">
                 模型运行情况
-                <p-toggleButton [(ngModel)]="enableUploadedMixView"
-                                offLabel="启用混合模式"
-                                onLabel="取消混合模式"
-                                [style]="{ 'font-size': '12px' }"></p-toggleButton>
+                <!--<p-toggleButton [(ngModel)]="enableUploadedMixView"-->
+                                <!--offLabel="启用混合模式"-->
+                                <!--onLabel="取消混合模式"-->
+                                <!--[style]="{ 'font-size': '12px' }"></p-toggleButton>-->
               </h4>
               <div class="card-content">
                 <!--<p-dropdown [options]="selectedModels"-->
@@ -72,7 +72,11 @@
                     模型得分: <span>{{ modelScore }}</span>
                   </h5>
                   <h5 class="col-sm-4">
-                    是否杀死变异: <span>{{ isKilled }}</span>
+                    <!--是否杀死变异: <span>{{ isKilled }}</span>-->
+                    当前模型输出: <span>{{ predictNumber }}</span>
+                  </h5>
+                  <h5 class="col-sm-4">
+                    实际图片标签: <span>{{ realNumber }}</span>
                   </h5>
                 </div>
               </div>
@@ -89,5 +93,9 @@
   </div>
   <div id="neuron-details">
   </div>
+  <p-dialog [(visible)]="display" [modal]="true" [showHeader]="false" [height]="70" [minHeight]="70">
+    正在上传，请稍候...
+    <p-progressBar mode="indeterminate"></p-progressBar>
+  </p-dialog>
   <p-growl [(value)]="msgs"></p-growl>
 </div>
