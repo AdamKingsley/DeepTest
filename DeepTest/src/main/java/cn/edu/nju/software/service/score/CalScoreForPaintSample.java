@@ -16,7 +16,7 @@ public class CalScoreForPaintSample implements CalScoreStrategy {
     private static final Double NOISE_PERCENT = 0.8;
 
     @Override
-    public Double calScore(Long killNum, Long toltalNum, Long count, List<Double> mseScores) {
+    public Double calScore(int killNum, int toltalNum, int count, List<Double> mseScores) {
         // killNum/totalNum + 1/count
         // 可以通过count不一样 区分出相通killNum的问题
         if (toltalNum == 0 || mseScores.size() == 0 || mseScores == null) {

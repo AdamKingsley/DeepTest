@@ -2,6 +2,8 @@ package cn.edu.nju.software.service;
 
 import cn.edu.nju.software.command.PaintCommand;
 import cn.edu.nju.software.command.mooctest.AssignTaskCommand;
+import cn.edu.nju.software.command.mooctest.ScoreCommand;
+import cn.edu.nju.software.command.mooctest.ScoreDetailCommand;
 import cn.edu.nju.software.command.python.ImageCommand;
 import cn.edu.nju.software.command.python.ImageDataCommand;
 import cn.edu.nju.software.command.python.PaintSubmitCommand;
@@ -12,8 +14,13 @@ import cn.edu.nju.software.dto.ImageDataDto;
 import cn.edu.nju.software.dto.PaintSubmitDto;
 import cn.edu.nju.software.service.feign.PythonFeign;
 import cn.edu.nju.software.service.score.ScoreStrategyContext;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.User;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +28,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mengf on 2018/6/7 0007.
  */
 @Service
+@Slf4j
 public class DataService {
 
     @Autowired
@@ -33,11 +42,7 @@ public class DataService {
     @Autowired
     private ImageDao imageDao;
     @Autowired
-    private SubmitDao submitDao;
-    @Autowired
     private SubmitCountDao submitCountDao;
-    @Autowired
-    private ExamScoreDao examScoreDao;
     @Autowired
     private PythonFeign pythonFeign;
     @Autowired
@@ -136,27 +141,40 @@ public class DataService {
     private void assignScore(Long examId, String userId, String taskId) {
         List<UserCaseData> caseDataList = caseDao.getUserCaseDatas(examId, userId);
         //拿到所有的成绩信息数据开始算分
-
+        List<Double> scores = Lists.newArrayList();
+        int killedNum = 0;
         //算完分后开始进行数据的组装提交
         AssignTaskCommand command = new AssignTaskCommand();
-
-//        AssignTaskCommand command = new AssignTaskCommand();
-//        command.setTaskId(taskId);
-//        command.setScore(submitData.getScore());
-//        ScoreCommand scoreCommand = new ScoreCommand();
-//        scoreCommand.setScore(submitData.getScore());
-//        scoreCommand.setOpenId(commonService.getUserId());
-//        List<ScoreDetailCommand> details = Lists.newArrayList();
-//        ScoreDetailCommand scoreDetailCommand = new ScoreDetailCommand();
-//        scoreDetailCommand.setCaseId(submitData.getCaseId());
-//        scoreDetailCommand.setScore(submitData.getScore());
-//        details.add(scoreDetailCommand);
-//        scoreCommand.setDetails(details);
-//        List<ScoreCommand> scoreDetails = Lists.newArrayList();
-//        scoreDetails.add(scoreCommand);
-//        command.setScoreDetails(scoreDetails);
-//        //提交成绩
-//        moocTestService.assignTask(command);
+        command.setTaskId(taskId);
+        Map<String, String> task_case_list = Maps.newConcurrentMap();
+        List<ScoreCommand> scoreDetails = Lists.newArrayList();
+        ScoreCommand scoreCommand = new ScoreCommand();
+        List<ScoreDetailCommand> details = Lists.newArrayList();
+        for (UserCaseData userCaseData : caseDataList) {
+            ScoreDetailCommand detail = new ScoreDetailCommand();
+            detail.setCaseId(userCaseData.getCaseId());
+            task_case_list.put(userCaseData.getCaseId(), userCaseData.getCaseId());
+            if (userCaseData.getIsKilled() == null || !userCaseData.getIsKilled()) {
+                detail.setScore(0.0);
+                scores.add(detail.getScore());
+            } else {
+                //杀死
+                detail.setScore(userCaseData.getScore());
+                scores.add(detail.getScore());
+                killedNum += 1;
+            }
+        }
+        Double score = strategy.calculateScore("calScoreForPaintSample", killedNum, caseDataList.size(), 1, scores);
+        scoreCommand.setScore(score);
+        scoreCommand.setOpenId(userId);
+        scoreCommand.setDetails(details);
+        scoreDetails.add(scoreCommand);
+        command.setCaseList(task_case_list);
+        command.setScoreDetails(scoreDetails);
+        //pring JSONObject String of the command
+        log.info(JSON.toJSONString(command));
+        //TODO 提交成绩
+        //moocTestService.assignTask(command);
     }
 
     private List<PaintSubmitData> getPaintSubmitDatas(PaintCommand paintCommand, ImageData imageData) {

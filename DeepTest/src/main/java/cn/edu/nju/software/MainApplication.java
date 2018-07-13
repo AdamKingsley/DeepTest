@@ -11,20 +11,20 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootApplication
 @EnableFeignClients
-@EnableTransactionManagement
 @Slf4j
 public class MainApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(MainApplication.class, args);
     }
+
+
 
     /**
      * 添加使用fastjson的bean 将网络数据的请求和反馈通过fastjson进行序列化

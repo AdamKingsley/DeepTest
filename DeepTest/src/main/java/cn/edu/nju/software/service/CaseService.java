@@ -25,7 +25,6 @@ public class CaseService {
      * @param caseId
      * @return
      */
-    @Transactional
     public CaseDto getCaseDto(Long examId, String userId, String caseId) {
         CaseDto caseDto = new CaseDto();
         UserCaseData caseData = caseDao.getUserCaseData(examId, userId, caseId);
@@ -42,7 +41,6 @@ public class CaseService {
      * @param examId
      * @return
      */
-    @Transactional
     public List<CaseDto> getCaseDtos(Long examId, String userId) {
         List<CaseDto> caseDtos = Lists.newArrayList();
         List<UserCaseData> caseDatas = caseDao.getUserCaseDatas(examId, userId);
