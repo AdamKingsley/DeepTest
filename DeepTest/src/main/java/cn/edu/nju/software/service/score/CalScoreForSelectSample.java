@@ -10,7 +10,7 @@ import java.util.List;
 @Component("calScoreForSelectSample")
 public class CalScoreForSelectSample implements CalScoreStrategy {
     @Override
-    public Double calScore(Long killNum, Long toltalNum, Long count, List<Double> mesScore) {
+    public Double calScore(int killNum, int toltalNum, int count, List<Double> mesScore) {
         // killNum/totalNum + 1/count
         // 可以通过count不一样 区分出相通killNum的问题
         if (toltalNum == 0) {

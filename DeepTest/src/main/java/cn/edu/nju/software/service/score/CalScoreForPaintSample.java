@@ -16,7 +16,7 @@ public class CalScoreForPaintSample implements CalScoreStrategy {
     private static final Double NOISE_PERCENT = 0.8;
 
     @Override
-    public Double calScore(Long killNum, Long toltalNum, Long count, List<Double> mseScores) {
+    public Double calScore(int killNum, int toltalNum, int count, List<Double> mseScores) {
         // killNum/totalNum + 1/count
         // 可以通过count不一样 区分出相通killNum的问题
         if (toltalNum == 0 || mseScores.size() == 0 || mseScores == null) {
@@ -28,10 +28,10 @@ public class CalScoreForPaintSample implements CalScoreStrategy {
         for (Double mseScore : mseScores)
             temp += mseScore;
         //加上扰动程度的分数
-        score += (killNum * 1.0 / toltalNum) * (temp * 1.0 / mseScores.size()) * NOISE_PERCENT;
-        if (count != 0) {
-            score += (1.0 / count);
-        }
+        score += (temp * 1.0 / mseScores.size()) * NOISE_PERCENT;
+        //if (count != 0) {
+        //    score += (1.0 / count);
+        //}
         return score;
     }
 }

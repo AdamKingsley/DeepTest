@@ -13,5 +13,5 @@ public interface CalScoreStrategy {
      * @param mesScore  第二种扰动的考试方案中的计算分数的mse值
      * @return 成绩
      */
-    Double calScore(Long killNum, Long toltalNum, Long count, List<Double> mesScore);
+    Double calScore(int killNum, int toltalNum, int count, List<Double> mesScore);
 }

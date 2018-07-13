@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -14,8 +15,10 @@ import java.util.List;
 public class AssignTaskCommand {
     @JSONField(name = "task_id")
     private String taskId;
-    @JSONField(name = "score")
-    private Double score;
+    @JSONField(name = "task_case_list")
+    private Map<String, String> caseList;
+    //@JSONField(name = "score")
+    //private Double score;
     @JSONField(name = "scoreDetails")
     private List<ScoreCommand> scoreDetails;
 }

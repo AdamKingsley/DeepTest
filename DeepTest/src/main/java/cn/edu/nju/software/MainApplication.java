@@ -24,6 +24,8 @@ public class MainApplication {
         SpringApplication.run(MainApplication.class, args);
     }
 
+
+
     /**
      * 添加使用fastjson的bean 将网络数据的请求和反馈通过fastjson进行序列化
      *

@@ -35,7 +35,7 @@ public class ScoreStrategyContext {
      * @param scoreType 算分策略
      * @return 分数
      */
-    public Double calculateScore(String scoreType, Long killNum, Long totalNum, Long count, List<Double> mse) {
+    public Double calculateScore(String scoreType, int killNum, int totalNum, int count, List<Double> mse) {
         if (!StringUtils.isEmpty(scoreType)) {
             return strategyMap.get(scoreType).calScore(killNum, totalNum, count, mse);
         }

@@ -26,7 +26,6 @@ public class ExceptionHandle {
     @ResponseBody
     public Result exceptionGet(Exception e) {
         e.printStackTrace();
-
         //自定义异常 ServiceException
         if (e instanceof ServiceException) {
             ServiceException exception = (ServiceException) e;
