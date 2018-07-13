@@ -2,6 +2,7 @@ package cn.edu.nju.software.dao;
 
 import cn.edu.nju.software.data.CaseData;
 import cn.edu.nju.software.data.UserCaseData;
+import cn.edu.nju.software.util.QueryUtil;
 import com.google.common.collect.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class CaseDao {
      * @return
      */
     public List<UserCaseData> getUserCaseDatas(Long examId, String userId) {
-        Query query = new Query(Criteria.where("exam_id").is(examId));
+        Query query = new Query(Criteria.where("exam_id").is(examId).and("user_id").is(userId));
         List<UserCaseData> userCaseDatas = template.find(query, UserCaseData.class);
         if (userCaseDatas == null || userCaseDatas.size() == 0) {
             //若该用户的cases信息没有需要插入数据
@@ -54,7 +55,8 @@ public class CaseDao {
     }
 
     private List<CaseData> getCaseDatas(Long examId) {
-        Query query = new Query(Criteria.where("exam_id").is(examId));
+        Query query = QueryUtil.queryExceptField("id");
+        query.addCriteria(Criteria.where("exam_id").is(examId));
         List<CaseData> caseDatas = template.find(query, CaseData.class);
         return caseDatas;
     }
@@ -66,7 +68,6 @@ public class CaseDao {
             UserCaseData userCaseData = new UserCaseData();
             BeanUtils.copyProperties(caseData, userCaseData);
             userCaseData.setUserId(userId);
-            userCaseData.setIsKilled(false);
             userCaseDatas.add(userCaseData);
         });
         template.insert(userCaseDatas, UserCaseData.class);
@@ -87,15 +88,15 @@ public class CaseDao {
     }
 
     public void updateCaseData(Long examId, String userId, String caseId, String composePath, String max_composePath, Double score, Boolean isKilled) {
-//        @Field("compose_path")
-//        private String composePath;
-//        //得分最高的合成图的path
-//        @Field("max_compose_path")
-//        private String maxComposePath;
-//        private Double score;
-//        //是否杀死变异模型
-//        @Field("is_killed")
-//        private Boolean isKilled;
+        //@Field("compose_path")
+        //private String composePath;
+        ////得分最高的合成图的path
+        //@Field("max_compose_path")
+        //private String maxComposePath;
+        //private Double score;
+        ////是否杀死变异模型
+        //@Field("is_killed")
+        //private Boolean isKilled;
         Query query = new Query(Criteria.where("exam_id").is(examId).and("case_id").is(caseId).and("user_id").is(userId));
         Update update = new Update();
         update.set("compose_path", composePath).set("score", score).set("is_killed", isKilled).set("max_compose_path", max_composePath);

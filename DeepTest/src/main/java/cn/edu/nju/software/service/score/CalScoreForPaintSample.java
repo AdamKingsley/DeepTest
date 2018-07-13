@@ -17,6 +17,9 @@ public class CalScoreForPaintSample implements CalScoreStrategy {
 
     @Override
     public Double calScore(int killNum, int toltalNum, int count, List<Double> mseScores) {
+        if (killNum == 0) {
+            return 0.0;
+        }
         // killNum/totalNum + 1/count
         // 可以通过count不一样 区分出相通killNum的问题
         if (toltalNum == 0 || mseScores.size() == 0 || mseScores == null) {
