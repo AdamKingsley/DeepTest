@@ -28,10 +28,10 @@ public class CalScoreForPaintSample implements CalScoreStrategy {
         for (Double mseScore : mseScores)
             temp += mseScore;
         //加上扰动程度的分数
-        score += (killNum * 1.0 / toltalNum) * (temp * 1.0 / mseScores.size()) * NOISE_PERCENT;
-        if (count != 0) {
-            score += (1.0 / count);
-        }
+        score += (temp * 1.0 / mseScores.size()) * NOISE_PERCENT;
+        //if (count != 0) {
+        //    score += (1.0 / count);
+        //}
         return score;
     }
 }

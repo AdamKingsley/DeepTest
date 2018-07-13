@@ -163,6 +163,7 @@ public class DataService {
                 scores.add(detail.getScore());
                 killedNum += 1;
             }
+            details.add(detail);
         }
         Double score = strategy.calculateScore("calScoreForPaintSample", killedNum, caseDataList.size(), 1, scores);
         scoreCommand.setScore(score);
