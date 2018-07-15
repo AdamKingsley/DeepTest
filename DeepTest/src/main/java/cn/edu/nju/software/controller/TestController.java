@@ -78,11 +78,12 @@ public class TestController {
     @GetMapping("insert/case")
     public Result insertCases() {
         List<CaseData> datas = Lists.newArrayList();
-        for (int i = 0; i < 30; i++) {
+        Long[] imageIds = {3L, 2L, 35L, 18L, 4L, 8L, 11L, 0L, 61L, 7L};
+        for (int i = 0; i < 10; i++) {
             CaseData data = new CaseData();
-            data.setCaseId(i+"");
-            data.setExamId(4L);
-            data.setImageId(i * 30L);
+            data.setCaseId(i + "");
+            data.setExamId(5L);
+            data.setImageId(imageIds[i]);
             data.setIsKilled(false);
             datas.add(data);
         }
