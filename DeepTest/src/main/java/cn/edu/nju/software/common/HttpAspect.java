@@ -16,8 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 @Slf4j
 public class HttpAspect {
-
-
+    private Long time;
     @Autowired
     private ExceptionHandle exceptionHandle;
 
@@ -27,6 +26,7 @@ public class HttpAspect {
 
     @Before("log()")
     public void doBefore(JoinPoint joinPoint) {
+        time = System.currentTimeMillis();
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
         //url
@@ -52,6 +52,7 @@ public class HttpAspect {
 
     @AfterReturning(pointcut = "log()", returning = "object")//打印输出结果
     public void doAfterReturing(Object object) {
+        log.info("this request costs " + (System.currentTimeMillis() - time) + "millis");
         log.info("response={}", object.toString());
     }
 }

@@ -1,6 +1,7 @@
 package cn.edu.nju.software.service;
 
 import cn.edu.nju.software.command.ExamCommand;
+import cn.edu.nju.software.common.exception.ServiceException;
 import cn.edu.nju.software.dao.*;
 import cn.edu.nju.software.data.ExamData;
 import cn.edu.nju.software.data.ExamScoreData;
@@ -46,7 +47,6 @@ public class ExamService {
     }
 
 
-
     public ExamImageDto getExamImages(Long id) {
         List<ImageDto> allImageDtos = Lists.newArrayList();
         List<ImageDto> selectImageDtos = Lists.newArrayList();
@@ -86,6 +86,9 @@ public class ExamService {
 
     public ExamDto findByTaskId(String taskId) {
         ExamData examData = examDao.getExamIdByTaskId(taskId);
+        if (examData == null) {
+            throw new ServiceException("获取考试信息失败，无本次考试信息！");
+        }
         ExamDto dto = new ExamDto();
         dto.setId(examData.getId());
         dto.setType(examData.getType());

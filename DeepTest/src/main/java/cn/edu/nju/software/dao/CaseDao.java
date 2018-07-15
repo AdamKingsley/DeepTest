@@ -68,6 +68,7 @@ public class CaseDao {
             UserCaseData userCaseData = new UserCaseData();
             BeanUtils.copyProperties(caseData, userCaseData);
             userCaseData.setUserId(userId);
+            userCaseData.setIsKilled(false);
             userCaseDatas.add(userCaseData);
         });
         template.insert(userCaseDatas, UserCaseData.class);

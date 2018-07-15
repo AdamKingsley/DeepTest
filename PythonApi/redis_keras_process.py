@@ -53,8 +53,8 @@ def OSPath(path):
 def cal_score(original_data, compose_data):
     test_count = 0
     for i in range(0, 784):
-        x = (original_data.reshape(784)[i]*255).astype(np.uint8)
-        y = (compose_data.reshape(784)[i]*255).astype(np.uint8)
+        x = (original_data.reshape(784)[i] * 255).astype(np.uint8)
+        y = (compose_data.reshape(784)[i] * 255).astype(np.uint8)
         temp = (int(x) - int(y)) ** 2
         test_count = test_count + temp
     # print(test_count)
@@ -78,7 +78,9 @@ def process():
     mongodb_settings = {
         'ip': config.ip,
         'port': config.port,
-        'db_name': config.db
+        'db_name': config.db,
+        'db_user_name': config.user,
+        'db_user_pwd': config.password
     }
     image_base_path = config.image_path
     model_base_path = config.model_path

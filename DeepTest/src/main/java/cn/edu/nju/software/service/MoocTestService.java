@@ -50,6 +50,14 @@ public class MoocTestService {
             String auth_code = (String) session.getAttribute("authrization_code");
             log.info("the auth_code is {}", auth_code);
             if (auth_code == null || auth_code.trim().isEmpty()) {
+                //TODO 随机生成auth_code
+                //String user_id = UUID.randomUUID().toString();
+                //UserDto userDto = new UserDto();
+                //dto.setOpenId(user_id);
+                //session.setAttribute("user", dto);
+                //session.setAttribute("user_id", dto.getOpenId());
+                //return dto;
+                //TODO 恢复该行代码
                 throw new ServiceException("用户信息丢失，请重新从慕测平台进入该考试！");
             }
             SessionTicket ticket = moocTestFeign.getSessionTicket(accessToken(), auth_code);

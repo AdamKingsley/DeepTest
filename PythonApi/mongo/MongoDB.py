@@ -10,6 +10,8 @@ class MongoDB(object):
             print(e)
         if 'db_name' in settings.keys():
             self.db = self.conn[settings["db_name"]]
+            if 'db_user_name' in settings.keys() and 'db_user_pwd' in settings.keys():
+                self.db.authenticate(settings['db_user_name'], settings['db_user_pwd'])
         if 'collection_name' in settings.keys():
             self.collection = self.db[settings["collection_name"]]
 
