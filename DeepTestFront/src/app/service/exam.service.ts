@@ -31,12 +31,33 @@ export class ExamService {
 
   getExam(id: number): Observable<object> {
     let url: string = `${Config.baseUrl}exam/${id}`;
-    console.log(url);
+    // console.log(url);
     return this.http.get(url, {
       responseType: 'json',
       withCredentials: true
     }).pipe(
       catchError(this.handleError('getExam', {}))
+    );
+  }
+
+  getExamCases(examId: number): Observable<object> {
+    let url: string = `${Config.baseUrl}case/list?examId=${examId}`;
+    return this.http.get(url, {
+      responseType: 'json',
+      withCredentials: true
+    }).pipe(
+      catchError(this.handleError('getExamCases', {}))
+    );
+  }
+
+  getExamCase(examId: number, caseId: number): Observable<object> {
+    let url: string = `${Config.baseUrl}case?examId=${examId}&caseId=${caseId}`;
+
+    return this.http.get(url, {
+      responseType: 'json',
+      withCredentials: true
+    }).pipe(
+      catchError(this.handleError('getExamCase', {}))
     );
   }
 

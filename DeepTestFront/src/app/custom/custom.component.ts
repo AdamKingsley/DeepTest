@@ -48,9 +48,14 @@ export class CustomComponent implements OnInit {
   modelScore: number;
   isKilled: string;
 
+  predictNumber: number;
+  realNumber: number;
+
   uploadedData: any[];
 
   msgs: Message[];
+
+  display = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -68,7 +73,7 @@ export class CustomComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.route.snapshot.queryParamMap);
+    // console.log(this.route.snapshot.queryParamMap);
     // this.getExamData();
     let code: string = this.route.snapshot.queryParamMap.get('code');
     let task_id: string = this.route.snapshot.queryParamMap.get('task_id');
@@ -86,7 +91,7 @@ export class CustomComponent implements OnInit {
   getExamId(code: string, task_id: string): void {
     this.es.getExamId(code, task_id)
       .subscribe(res => {
-        console.log(res);
+        // console.log(res);
         if (!res || !res['success']) {
           this.showError(res ? res['errorMessage'] : 'error');
           return;
@@ -94,7 +99,7 @@ export class CustomComponent implements OnInit {
         let data: object = res['data'];
         this.examId = data['id'];
 
-        this.getExamData();
+        this.getCaseData();
       });
   }
 
@@ -102,7 +107,7 @@ export class CustomComponent implements OnInit {
     this.es.getExam(this.examId)
       .subscribe(res => {
         // console.log('examData:');
-        console.log(res);
+        // console.log(res);
         if (!res || !res['success']) {
           this.showError(res ? res['errorMessage'] : 'error');
           return;
@@ -132,20 +137,35 @@ export class CustomComponent implements OnInit {
       });
   }
 
-  // getSamples(): void {
-  //   this.cs.getSampleImages()
-  //     .subscribe(res => {
-  //       this.samples = res;
-  //       for (let i = 0; i < this.samples.length; i++) {
-  //         this.sampleBoards.push({
-  //           id: this.samples[i].id
-  //         });
-  //       }
-  //     });
-  // }
+  getCaseData(): void {
+    this.es.getExamCases(this.examId)
+      .subscribe(res => {
+        // console.log(res);
+        if (!res || !res['success']) {
+          this.showError(res ? res['errorMessage'] : 'error');
+          return;
+        }
+        let data: any[] = res['data'];
+
+        for (let i = 0; i < data.length; i++) {
+          let sample = new Sample();
+          sample.id = data[i]['imageId'];
+          sample.caseId = data[i]['caseId'];
+          sample.path = Config.baseImgPrefix + data[i]['path'];
+          if (data[i]['composePath']) {
+            sample.composePath = Config.baseComposeImgPrefix + data[i]['composePath'];
+          }
+
+          this.samples.push(sample);
+          this.sampleBoards.push({
+            id: sample.id
+          });
+        }
+      });
+  }
 
   selectSample(sample: Sample): void {
-    console.log(sample);
+    // console.log(sample);
     let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
     let ctx: CanvasRenderingContext2D
       = canvas.getContext('2d');
@@ -169,12 +189,24 @@ export class CustomComponent implements OnInit {
     ctx.clearRect(0, 0, width, height);
     this.boardOptStack = [];
 
+    this.neuronChart.destroy();
+    this.modelScore = null;
+    this.predictNumber = null;
+    this.realNumber = null;
+
     for (let i = 0; i < this.sampleBoards.length; i++) {
       if (this.sampleBoards[i]['id'] == sample.id) {
         if (!this.sampleBoards[i]['imgData']) {
           let originImage: HTMLImageElement = new Image();
-          originImage.src = sample.path;
-          ctx.drawImage(originImage, 0, 0, width, height);
+          originImage.crossOrigin = 'anonymous';
+          if (sample.composePath) {
+            originImage.src = sample.composePath + '?var=' + Math.random();
+          } else {
+            originImage.src = sample.path + '?var=' + Math.random();
+          }
+          originImage.onload = function() {
+            ctx.drawImage(originImage, 0, 0, width, height);
+          }
         } else {
           ctx.putImageData(this.sampleBoards[i]['imgData'], 0, 0);
         }
@@ -276,8 +308,11 @@ export class CustomComponent implements OnInit {
     let height: number = canvasRect.height;
 
     let originImage: HTMLImageElement = new Image();
-    originImage.src = this.selectedSample.path;
-    ctx.drawImage(originImage, 0, 0, width, height);
+    originImage.crossOrigin = 'Anonymous';
+    originImage.src = this.selectedSample.path + '?var=' + Math.random();
+    originImage.onload = function() {
+      ctx.drawImage(originImage, 0, 0, width, height);
+    };
 
     this.boardOptStack = [];
   }
@@ -292,10 +327,12 @@ export class CustomComponent implements OnInit {
 
     let imageBase64: string = canvas.toDataURL('image/png');
 
+    this.display = true;
     this.cs.getFat(imageBase64)
       .subscribe(res => {
+        this.display = false;
         if (!res || !res['success']) {
-          this.showError(res ? res['errorMessage'] : 'error');
+          this.showError(res ? res['message'] : 'error');
           return;
         }
 
@@ -310,7 +347,7 @@ export class CustomComponent implements OnInit {
         let height: number = canvasRect.height;
 
         let originImage: HTMLImageElement = new Image();
-        originImage.crossOrigin = '*';
+        originImage.crossOrigin = 'Anonymous';
         originImage.onload = function () {
           ctx.drawImage(originImage, 0, 0, width, height);
         };
@@ -328,10 +365,13 @@ export class CustomComponent implements OnInit {
 
     let imageBase64: string = canvas.toDataURL('image/png');
 
+    this.display = true;
+
     this.cs.getThin(imageBase64)
       .subscribe(res => {
+        this.display = false;
         if (!res || !res['success']) {
-          this.showError(res ? res['errorMessage'] : 'error');
+          this.showError(res ? res['message'] : 'error');
           return;
         }
 
@@ -346,7 +386,7 @@ export class CustomComponent implements OnInit {
         let height: number = canvasRect.height;
 
         let originImage: HTMLImageElement = new Image();
-        originImage.crossOrigin = '*';
+        originImage.crossOrigin = 'Anonymous';
         originImage.onload = function () {
           ctx.drawImage(originImage, 0, 0, width, height);
         };
@@ -358,34 +398,57 @@ export class CustomComponent implements OnInit {
     if (!this.selectedSample) {
       this.showInfo('需要选择样本！');
     }
-    if (!this.selectedModels || this.selectedModels.length == 0) {
-      this.showError('需要选择运行的模型！');
-      return;
-    }
+    // if (!this.selectedModels || this.selectedModels.length == 0) {
+    //   this.showError('需要选择运行的模型！');
+    //   return;
+    // }
     let canvas: HTMLCanvasElement = this.boardRef.nativeElement;
     let ctx: CanvasRenderingContext2D
       = canvas.getContext('2d');
 
     let imageBase64: string = canvas.toDataURL('image/png');
 
-    let modelsId: number[] = this.selectedModels.map(model => {
-        return model.id;
-    });
+    this.display = true;
 
-    this.cs.submitSample(this.examId, modelsId, this.selectedSample.id, imageBase64)
+    this.cs.submitSample(this.examId, this.selectedSample.caseId, this.selectedSample.id, imageBase64)
       .subscribe(res => {
-        console.log(res);
+          // console.log(res);
+        this.sleep(1000);
+        this.display = false;
+
         if (!res || !res['success']) {
-          this.showError(res ? res['errorMessage'] : 'error');
-          return;
+            this.showError(res ? res['errorMessage'] : 'error');
+            return;
         }
 
-        this.uploadedData = res['data'];
-        this.selectedUploadedModel = this.selectedModels[0];
-        this.chooseModel();
+        // console.log(res);
+        let data: object = res['data'][0];
+        let standardActivationData: any[] = data['standardActivationData'];
 
-        this.getScore();
+        this.neuronChart.render(standardActivationData);
+        this.modelScore = data['score'].toFixed(2);
+        this.predictNumber = data['standardPredict'];
+        this.realNumber = data['originalPredict'];
       });
+
+    // let modelsId: number[] = this.selectedModels.map(model => {
+    //     return model.id;
+    // });
+    //
+    // this.cs.submitSample(this.examId, modelsId, this.selectedSample.id, imageBase64)
+    //   .subscribe(res => {
+    //     console.log(res);
+    //     if (!res || !res['success']) {
+    //       this.showError(res ? res['errorMessage'] : 'error');
+    //       return;
+    //     }
+    //
+    //     this.uploadedData = res['data'];
+    //     this.selectedUploadedModel = this.selectedModels[0];
+    //     this.chooseModel();
+    //
+    //     this.getScore();
+    //   });
   }
 
   chooseModel(): void {
@@ -451,6 +514,11 @@ export class CustomComponent implements OnInit {
     result.push([x2 - width / (2 * c) * b, y2 + width / (2 * c) * a]);
 
     return result;
+  }
+
+  private sleep(d): void {
+    let t: number = Date.now();
+    while (Date.now() - t <= d) {}
   }
 
 }

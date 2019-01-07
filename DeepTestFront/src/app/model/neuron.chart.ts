@@ -20,6 +20,18 @@ export class NeuronChart {
     this.target = target;
   }
 
+  destroy(): void {
+    d3.select(this.target)
+      .selectAll('circle')
+      .remove();
+    d3.select(this.target)
+      .selectAll('text')
+      .remove();
+    d3.select(this.target)
+      .selectAll('rect')
+      .remove();
+  }
+
   render(standardData: number[][]): void {
 
     console.log('start rendering');
