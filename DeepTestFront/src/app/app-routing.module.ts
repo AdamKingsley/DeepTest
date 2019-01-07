@@ -5,7 +5,7 @@ import { AnswerComponent } from "./answer/answer.component";
 import { CustomComponent } from "./custom/custom.component";
 
 const routes:Routes = [
-  { path: '', component: AnswerComponent },
+  { path: '', component: CustomComponent },
   { path: 'custom', component: CustomComponent },
 ];
 
